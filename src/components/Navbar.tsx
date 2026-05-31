@@ -68,10 +68,15 @@ export default function Navbar() {
   const menuRef = useRef<HTMLDivElement>(null)
 
   const handleLogout = () => {
-    void authService.logout().then(() => {
-      clearUser()
-      navigate(ROUTES.HOME, { replace: true })
-    })
+    void authService
+      .logout()
+      .then(() => {
+        clearUser()
+        navigate(ROUTES.HOME, { replace: true })
+      })
+      .catch((error: unknown) => {
+        console.error('Logout failed:', error)
+      })
   }
 
   useEffect(() => {

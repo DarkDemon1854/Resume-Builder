@@ -2,7 +2,9 @@ import { useState, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { authService } from '@/services/authService'
 import { ROUTES } from '@/constants'
-import { isValidEmail } from '@/utils'
+import { validateEmail } from '@/utils/validation'
+import { resolveFirebaseError } from '@/utils/firebaseErrors'
+import { toast } from '@/store/toastStore'
 import Button from '@/components/Button'
 import Input from '@/components/Input'
 
@@ -13,21 +15,18 @@ export default function ForgotPasswordPage() {
   const [emailError, setEmailError] = useState('')
   const [stage, setStage] = useState<Stage>('form')
   const [isLoading, setIsLoading] = useState(false)
-  const [serverError, setServerError] = useState('')
 
   const validate = useCallback((value: string): string => {
-    if (!value.trim()) return 'Email is required'
-    if (!isValidEmail(value)) return 'Enter a valid email address'
-    return ''
+    const result = validateEmail(value)
+    return result.valid ? '' : result.message
   }, [])
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       setEmail(e.target.value)
       if (emailError) setEmailError(validate(e.target.value))
-      if (serverError) setServerError('')
     },
-    [emailError, serverError, validate]
+    [emailError, validate]
   )
 
   const handleBlur = useCallback(() => {
@@ -45,8 +44,8 @@ export default function ForgotPasswordPage() {
     try {
       await authService.sendPasswordReset(email)
       setStage('sent')
-    } catch {
-      setServerError('Failed to send reset email. Please try again.')
+    } catch (err) {
+      toast.error(resolveFirebaseError(err))
     } finally {
       setIsLoading(false)
     }
@@ -55,15 +54,22 @@ export default function ForgotPasswordPage() {
   if (stage === 'sent') {
     return (
       <div className="animate-fade-in text-center">
-        <div className="w-16 h-16 rounded-full bg-success-500/15 border border-success-500/30 flex-center mx-auto mb-6">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-8 h-8 text-success-400">
-            <path fillRule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clipRule="evenodd" />
+        <div className="w-16 h-16 rounded-full bg-success-500/15 border border-success-500/30 flex items-center justify-center mx-auto mb-6">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            className="w-8 h-8 text-success-400"
+          >
+            <path
+              fillRule="evenodd"
+              d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
+              clipRule="evenodd"
+            />
           </svg>
         </div>
         <h1 className="text-2xl font-bold text-neutral-50 mb-2">Check your inbox</h1>
-        <p className="text-neutral-400 text-sm mb-1">
-          We sent a password reset link to
-        </p>
+        <p className="text-neutral-400 text-sm mb-1">We sent a password reset link to</p>
         <p className="text-primary-400 font-medium text-sm mb-8">{email}</p>
         <p className="text-xs text-neutral-500 mb-6">
           Didn&apos;t receive it? Check your spam folder or{' '}
@@ -88,9 +94,18 @@ export default function ForgotPasswordPage() {
   return (
     <div className="animate-fade-in">
       <div className="text-center mb-8">
-        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-500 to-secondary-600 flex-center mx-auto mb-4 shadow-glow">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 text-white">
-            <path fillRule="evenodd" d="M12 1.5a5.25 5.25 0 00-5.25 5.25v3a3 3 0 00-3 3v6.75a3 3 0 003 3h10.5a3 3 0 003-3v-6.75a3 3 0 00-3-3v-3c0-2.9-2.35-5.25-5.25-5.25zm3.75 8.25v-3a3.75 3.75 0 10-7.5 0v3h7.5z" clipRule="evenodd" />
+        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-500 to-secondary-600 flex items-center justify-center mx-auto mb-4 shadow-glow">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            className="w-6 h-6 text-white"
+          >
+            <path
+              fillRule="evenodd"
+              d="M12 1.5a5.25 5.25 0 00-5.25 5.25v3a3 3 0 00-3 3v6.75a3 3 0 003 3h10.5a3 3 0 003-3v-6.75a3 3 0 00-3-3v-3c0-2.9-2.35-5.25-5.25-5.25zm3.75 8.25v-3a3.75 3.75 0 10-7.5 0v3h7.5z"
+              clipRule="evenodd"
+            />
           </svg>
         </div>
         <h1 className="text-2xl font-bold text-neutral-50">Forgot password?</h1>
@@ -100,15 +115,6 @@ export default function ForgotPasswordPage() {
       </div>
 
       <div className="card-base">
-        {serverError && (
-          <div
-            role="alert"
-            className="mb-5 px-4 py-3 rounded-lg bg-danger-500/10 border border-danger-500/30 text-danger-400 text-sm"
-          >
-            {serverError}
-          </div>
-        )}
-
         <form onSubmit={(e) => { void handleSubmit(e) }} noValidate className="flex flex-col gap-5">
           <Input
             id="forgot-email"

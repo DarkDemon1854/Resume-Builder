@@ -3,6 +3,7 @@
 @tailwind utilities;
 
 @layer base {
+
   *,
   *::before,
   *::after {
@@ -39,12 +40,21 @@
     @apply outline-none ring-2 ring-primary-500/60 ring-offset-2 ring-offset-neutral-950;
   }
 
+  input,
+  textarea {
+    color-scheme: dark;
+  }
+
   input:-webkit-autofill,
   input:-webkit-autofill:hover,
-  input:-webkit-autofill:focus {
-    -webkit-box-shadow: 0 0 0 1000px theme('colors.neutral.900') inset;
-    -webkit-text-fill-color: theme('colors.neutral.100');
-    transition: background-color 5000s ease-in-out 0s;
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 1000px #171717 inset !important;
+    -webkit-text-fill-color: #f5f5f5 !important;
+    caret-color: #f5f5f5 !important;
+    transition-property: border-color !important;
+    transition-duration: 0.15s !important;
+    transition-timing-function: ease-in-out !important;
   }
 
   ::-webkit-scrollbar {
@@ -103,19 +113,15 @@
   }
 
   .btn-base {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg font-medium
-           transition-all duration-200 focus-visible:outline-none focus-visible:ring-2
-           focus-visible:ring-primary-500/60 focus-visible:ring-offset-2
-           focus-visible:ring-offset-neutral-950 disabled:pointer-events-none
-           disabled:opacity-50 select-none;
+    @apply inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/60 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950 disabled:pointer-events-none disabled:opacity-50 select-none;
   }
 
   .input-base {
     @apply w-full rounded-lg border border-neutral-700 bg-neutral-900 px-4 py-2.5
            text-sm text-neutral-100 placeholder:text-neutral-500
-           transition-colors duration-200
            focus:outline-none focus:border-primary-500/70 focus:ring-2
            focus:ring-primary-500/20;
+    transition: border-color 0.15s ease-in-out;
   }
 
   .label-base {

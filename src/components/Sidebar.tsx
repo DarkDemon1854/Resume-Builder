@@ -51,11 +51,16 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
   const navigate = useNavigate()
 
   const handleLogout = () => {
-    void authService.logout().then(() => {
-      clearUser()
-      if (onClose) { onClose() }
-      navigate(ROUTES.HOME, { replace: true })
-    })
+    void authService
+      .logout()
+      .then(() => {
+        clearUser()
+        if (onClose) { onClose() }
+        navigate(ROUTES.HOME, { replace: true })
+      })
+      .catch((error: unknown) => {
+        console.error('Logout failed:', error)
+      })
   }
 
   return (

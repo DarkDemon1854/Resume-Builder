@@ -1,12 +1,11 @@
-import { Navigate, Outlet, useLocation } from 'react-router-dom'
+import { Navigate, Outlet } from 'react-router-dom'
 import { useAuthStore, selectIsAuthenticated, selectIsLoading } from '@/store/authStore'
 import { ROUTES } from '@/constants'
 import Loader from '@/components/Loader'
 
-export default function ProtectedRoute() {
+export default function PublicRoute() {
   const isAuthenticated = useAuthStore(selectIsAuthenticated)
   const isLoading = useAuthStore(selectIsLoading)
-  const location = useLocation()
 
   if (isLoading) {
     return (
@@ -16,8 +15,8 @@ export default function ProtectedRoute() {
     )
   }
 
-  if (!isAuthenticated) {
-    return <Navigate to={ROUTES.LOGIN} state={{ from: location }} replace />
+  if (isAuthenticated) {
+    return <Navigate to={ROUTES.DASHBOARD} replace />
   }
 
   return <Outlet />

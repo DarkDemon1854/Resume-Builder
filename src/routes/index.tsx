@@ -1,11 +1,13 @@
 import { createBrowserRouter } from 'react-router-dom'
 import ProtectedRoute from '@/routes/ProtectedRoute'
+import PublicRoute from '@/routes/PublicRoute'
 import RootLayout from '@/layouts/RootLayout'
 import AuthLayout from '@/layouts/AuthLayout'
 import DashboardLayout from '@/layouts/DashboardLayout'
 import HomePage from '@/pages/HomePage'
 import LoginPage from '@/pages/LoginPage'
 import SignupPage from '@/pages/SignupPage'
+import ForgotPasswordPage from '@/pages/ForgotPasswordPage'
 import DashboardPage from '@/pages/DashboardPage'
 import NotFoundPage from '@/pages/NotFoundPage'
 
@@ -21,15 +23,24 @@ export const router = createBrowserRouter([
     ],
   },
   {
-    element: <AuthLayout />,
+    element: <PublicRoute />,
     children: [
       {
-        path: '/login',
-        element: <LoginPage />,
-      },
-      {
-        path: '/signup',
-        element: <SignupPage />,
+        element: <AuthLayout />,
+        children: [
+          {
+            path: '/login',
+            element: <LoginPage />,
+          },
+          {
+            path: '/signup',
+            element: <SignupPage />,
+          },
+          {
+            path: '/forgot-password',
+            element: <ForgotPasswordPage />,
+          },
+        ],
       },
     ],
   },

@@ -19,7 +19,6 @@ type AuthActions = {
   setError: (error: string | null) => void
   clearError: () => void
   setSessionChecked: (checked: boolean) => void
-  setLoading: (loading: boolean) => void
 }
 
 type AuthStore = AuthState & AuthActions
@@ -59,9 +58,6 @@ export const useAuthStore = create<AuthStore>()(
       clearError: () => set({ error: null }),
 
       setSessionChecked: sessionChecked => set({ sessionChecked }),
-
-      setLoading: (loading: boolean) =>
-        set({ status: loading ? 'loading' : 'idle' }),
     }),
     {
       name: STORAGE_KEYS.AUTH,

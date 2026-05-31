@@ -6,6 +6,7 @@ export const ROUTES = {
   HOME: '/',
   LOGIN: '/login',
   SIGNUP: '/signup',
+  FORGOT_PASSWORD: '/forgot-password',
   DASHBOARD: '/dashboard',
   EDITOR: (id: string) => `/editor/${id}`,
   PREVIEW: (id: string) => `/preview/${id}`,

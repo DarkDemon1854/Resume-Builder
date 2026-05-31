@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { useAuthStore } from '@/store/authStore'
+import { useAuthStore, selectUser } from '@/store/authStore'
 import { useResumeStore } from '@/store/resumeStore'
 import { ROUTES } from '@/constants'
 import Button from '@/components/Button'
@@ -95,7 +95,7 @@ function ResumeCard({ id, title, template, updatedAt }: ResumeCardProps) {
 }
 
 export default function DashboardPage() {
-  const { user } = useAuthStore()
+  const user = useAuthStore(selectUser)
   const { resumes } = useResumeStore()
 
   const greeting = (() => {

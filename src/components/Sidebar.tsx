@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
-import { NavLink, useLocation } from 'react-router-dom'
-import { useAuthStore } from '@/store/authStore'
+import { NavLink, useLocation, useNavigate } from 'react-router-dom'
+import { useAuthStore, selectUser } from '@/store/authStore'
+import { authService } from '@/services/authService'
 import { ROUTES } from '@/constants'
 import Button from '@/components/Button'
 
@@ -45,11 +46,16 @@ const NavItemEl = ({ item, onClick }: { item: (typeof NAV_ITEMS)[0]; onClick?: (
 )
 
 function SidebarContent({ onClose }: { onClose?: () => void }) {
-  const { user, logout } = useAuthStore()
+  const user = useAuthStore(selectUser)
+  const clearUser = useAuthStore(state => state.clearUser)
+  const navigate = useNavigate()
 
   const handleLogout = () => {
-    logout()
-    if (onClose) onClose()
+    void authService.logout().then(() => {
+      clearUser()
+      if (onClose) { onClose() }
+      navigate(ROUTES.HOME, { replace: true })
+    })
   }
 
   return (

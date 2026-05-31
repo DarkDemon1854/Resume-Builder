@@ -1,13 +1,13 @@
-import { useAuthStore } from '@/store/authStore'
+import { useAuthStore, selectUser, selectIsAuthenticated, selectIsLoading, selectAuthError } from '@/store/authStore'
 
 export function useAuth() {
-  const user = useAuthStore(state => state.user)
-  const isAuthenticated = useAuthStore(state => state.isAuthenticated)
-  const isLoading = useAuthStore(state => state.isLoading)
-  const error = useAuthStore(state => state.error)
+  const user = useAuthStore(selectUser)
+  const isAuthenticated = useAuthStore(selectIsAuthenticated)
+  const isLoading = useAuthStore(selectIsLoading)
+  const error = useAuthStore(selectAuthError)
   const setUser = useAuthStore(state => state.setUser)
-  const logout = useAuthStore(state => state.logout)
-  const setLoading = useAuthStore(state => state.setLoading)
+  const clearUser = useAuthStore(state => state.clearUser)
+  const setStatus = useAuthStore(state => state.setStatus)
   const setError = useAuthStore(state => state.setError)
   const clearError = useAuthStore(state => state.clearError)
 
@@ -17,8 +17,8 @@ export function useAuth() {
     isLoading,
     error,
     setUser,
-    logout,
-    setLoading,
+    clearUser,
+    setStatus,
     setError,
     clearError,
   }

@@ -1,37 +1,34 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import { STORAGE_KEYS } from '@/constants'
+import type { AuthUser } from '@/services/authService'
 
-type User = {
-  id: string
-  email: string
-  name: string
-  avatar?: string
-  createdAt: string
-}
+type AuthStatus = 'idle' | 'loading' | 'authenticated' | 'unauthenticated'
 
 type AuthState = {
-  user: User | null
-  isAuthenticated: boolean
-  isLoading: boolean
+  user: AuthUser | null
+  status: AuthStatus
   error: string | null
+  sessionChecked: boolean
 }
 
 type AuthActions = {
-  setUser: (user: User) => void
-  logout: () => void
-  setLoading: (loading: boolean) => void
+  setUser: (user: AuthUser) => void
+  clearUser: () => void
+  setStatus: (status: AuthStatus) => void
   setError: (error: string | null) => void
   clearError: () => void
+  setSessionChecked: (checked: boolean) => void
+  setLoading: (loading: boolean) => void
 }
 
 type AuthStore = AuthState & AuthActions
 
 const initialState: AuthState = {
   user: null,
-  isAuthenticated: false,
-  isLoading: false,
+  status: 'idle',
   error: null,
+  sessionChecked: false,
 }
 
 export const useAuthStore = create<AuthStore>()(
@@ -42,28 +39,45 @@ export const useAuthStore = create<AuthStore>()(
       setUser: user =>
         set({
           user,
-          isAuthenticated: true,
-          isLoading: false,
+          status: 'authenticated',
           error: null,
+          sessionChecked: true,
         }),
 
-      logout: () => set(initialState),
+      clearUser: () =>
+        set({
+          user: null,
+          status: 'unauthenticated',
+          error: null,
+          sessionChecked: true,
+        }),
 
-      setLoading: isLoading => set({ isLoading }),
+      setStatus: status => set({ status }),
 
-      setError: error => set({ error, isLoading: false }),
+      setError: error => set({ error, status: 'unauthenticated' }),
 
       clearError: () => set({ error: null }),
+
+      setSessionChecked: sessionChecked => set({ sessionChecked }),
+
+      setLoading: (loading: boolean) =>
+        set({ status: loading ? 'loading' : 'idle' }),
     }),
     {
       name: STORAGE_KEYS.AUTH,
       storage: createJSONStorage(() => localStorage),
       partialize: state => ({
         user: state.user,
-        isAuthenticated: state.isAuthenticated,
+        status: state.status,
       }),
     }
   )
 )
 
-export type { User, AuthState }
+export const selectIsAuthenticated = (state: AuthStore) => state.status === 'authenticated'
+export const selectIsLoading = (state: AuthStore) => state.status === 'loading' || !state.sessionChecked
+export const selectUser = (state: AuthStore) => state.user
+export const selectAuthError = (state: AuthStore) => state.error
+export const selectSessionChecked = (state: AuthStore) => state.sessionChecked
+
+export type { AuthUser, AuthStatus }

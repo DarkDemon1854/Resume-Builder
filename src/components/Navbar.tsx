@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
-import { Link, NavLink, useLocation } from 'react-router-dom'
-import { useAuthStore } from '@/store/authStore'
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
+import { useAuthStore, selectIsAuthenticated, selectUser } from '@/store/authStore'
+import { authService } from '@/services/authService'
 import { ROUTES } from '@/constants'
 import Button from '@/components/Button'
 
@@ -59,9 +60,19 @@ const CloseIcon = () => (
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
-  const { isAuthenticated, user, logout } = useAuthStore()
+  const isAuthenticated = useAuthStore(selectIsAuthenticated)
+  const user = useAuthStore(selectUser)
+  const clearUser = useAuthStore(state => state.clearUser)
+  const navigate = useNavigate()
   const location = useLocation()
   const menuRef = useRef<HTMLDivElement>(null)
+
+  const handleLogout = () => {
+    void authService.logout().then(() => {
+      clearUser()
+      navigate(ROUTES.HOME, { replace: true })
+    })
+  }
 
   useEffect(() => {
     setMobileOpen(false)
@@ -124,7 +135,7 @@ export default function Navbar() {
           {isAuthenticated ? (
             <>
               <span className="text-sm text-neutral-400">{user?.name}</span>
-              <Button variant="secondary" size="sm" onClick={logout}>
+              <Button variant="secondary" size="sm" onClick={handleLogout}>
                 Sign out
               </Button>
             </>
@@ -188,7 +199,7 @@ export default function Navbar() {
             {isAuthenticated ? (
               <>
                 <p className="px-4 py-2 text-sm text-neutral-400">{user?.name}</p>
-                <Button variant="secondary" fullWidth onClick={logout}>
+                <Button variant="secondary" fullWidth onClick={handleLogout}>
                   Sign out
                 </Button>
               </>

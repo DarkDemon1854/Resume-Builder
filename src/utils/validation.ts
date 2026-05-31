@@ -3,6 +3,8 @@ export type ValidationResult = {
   message: string
 }
 
+export const MIN_PASSWORD_LENGTH = 8
+
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export function validateEmail(email: string): ValidationResult {
@@ -13,13 +15,13 @@ export function validateEmail(email: string): ValidationResult {
 
 export function validateCurrentPassword(password: string): ValidationResult {
   if (!password) return { valid: false, message: 'Password is required' }
-  if (password.length < 8) return { valid: false, message: 'Password must be at least 8 characters' }
+  if (password.length < MIN_PASSWORD_LENGTH) return { valid: false, message: `Password must be at least ${MIN_PASSWORD_LENGTH} characters` }
   return { valid: true, message: '' }
 }
 
 export function validateNewPassword(password: string): ValidationResult {
   if (!password) return { valid: false, message: 'Password is required' }
-  if (password.length < 8) return { valid: false, message: 'Password must be at least 8 characters' }
+  if (password.length < MIN_PASSWORD_LENGTH) return { valid: false, message: `Password must be at least ${MIN_PASSWORD_LENGTH} characters` }
   if (!/[A-Z]/.test(password)) return { valid: false, message: 'Password must contain at least one uppercase letter' }
   if (!/[0-9]/.test(password)) return { valid: false, message: 'Password must contain at least one number' }
   return { valid: true, message: '' }
@@ -40,7 +42,7 @@ export function validateDisplayName(name: string): ValidationResult {
 export function passwordStrength(password: string): 0 | 1 | 2 | 3 | 4 {
   if (!password) return 0
   let score = 0
-  if (password.length >= 8) score++
+  if (password.length >= MIN_PASSWORD_LENGTH) score++
   if (/[A-Z]/.test(password)) score++
   if (/[0-9]/.test(password)) score++
   if (/[^A-Za-z0-9]/.test(password)) score++

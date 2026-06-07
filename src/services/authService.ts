@@ -1,6 +1,8 @@
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  signInWithPopup,
+  GoogleAuthProvider,
   signOut,
   sendPasswordResetEmail,
   updateProfile,
@@ -43,6 +45,12 @@ async function login(email: string, password: string): Promise<AuthUser> {
   return mapFirebaseUser(credential.user)
 }
 
+async function loginWithGoogle(): Promise<AuthUser> {
+  const provider = new GoogleAuthProvider()
+  const credential = await signInWithPopup(auth, provider)
+  return mapFirebaseUser(credential.user)
+}
+
 async function logout(): Promise<void> {
   await signOut(auth)
 }
@@ -64,6 +72,7 @@ function onSessionChange(callback: (user: AuthUser | null) => void): Unsubscribe
 export const authService = {
   register,
   login,
+  loginWithGoogle,
   logout,
   sendPasswordReset,
   getCurrentUser,

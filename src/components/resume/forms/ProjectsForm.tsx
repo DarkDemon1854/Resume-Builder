@@ -11,18 +11,7 @@ import type { Project } from '@/types/resume'
 
 type Props = { resumeId: string }
 
-
-const BLANK: Omit<Project, 'id'> = {
-  name: '',
-  description: '',
-  technologies: [],
-  url: '',
-  github: '',
-  startDate: '',
-  endDate: '',
-  current: false,
-  highlights: [],
-}
+import { createBlankProject } from '@/utils/resumeDefaults'
 
 export default function ProjectsForm({ resumeId }: Props) {
   const { activeResume, addProject, updateProject, removeProject, reorderProjects } =
@@ -32,7 +21,7 @@ export default function ProjectsForm({ resumeId }: Props) {
   const { handleBlur, getErr } = useEntryValidation<Project>(validateProjectEntry)
 
   const handleAdd = useCallback(() => {
-    addProject(resumeId, { ...BLANK })
+    addProject(resumeId, createBlankProject())
   }, [resumeId, addProject])
 
   const handleUpdate = useCallback(

@@ -10,11 +10,7 @@ import type { Skill } from '@/types/resume'
 
 type Props = { resumeId: string }
 
-
-const BLANK: Omit<Skill, 'id'> = {
-  category: '',
-  items: [],
-}
+import { createBlankSkill } from '@/utils/resumeDefaults'
 
 export default function SkillsForm({ resumeId }: Props) {
   const { activeResume, addSkill, updateSkill, removeSkill, reorderSkills } = useResume(resumeId)
@@ -23,7 +19,7 @@ export default function SkillsForm({ resumeId }: Props) {
   const { handleBlur, getErr } = useEntryValidation<Skill>(validateSkillEntry)
 
   const handleAdd = useCallback(() => {
-    addSkill(resumeId, { ...BLANK })
+    addSkill(resumeId, createBlankSkill())
   }, [resumeId, addSkill])
 
   const handleUpdate = useCallback(

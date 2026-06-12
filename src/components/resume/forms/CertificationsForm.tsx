@@ -9,14 +9,7 @@ import type { Certification } from '@/types/resume'
 
 type Props = { resumeId: string }
 
-
-const BLANK: Omit<Certification, 'id'> = {
-  name: '',
-  issuer: '',
-  date: '',
-  url: '',
-  credentialId: '',
-}
+import { createBlankCertification } from '@/utils/resumeDefaults'
 
 export default function CertificationsForm({ resumeId }: Props) {
   const {
@@ -31,7 +24,7 @@ export default function CertificationsForm({ resumeId }: Props) {
   const { handleBlur, getErr } = useEntryValidation<Certification>(validateCertificationEntry)
 
   const handleAdd = useCallback(() => {
-    addCertification(resumeId, { ...BLANK })
+    addCertification(resumeId, createBlankCertification())
   }, [resumeId, addCertification])
 
   const handleUpdate = useCallback(

@@ -53,7 +53,10 @@ export default function DynamicList<T extends { id: string }>({
     (e: React.DragEvent<HTMLDivElement>, id: string) => {
       e.preventDefault()
       e.dataTransfer.dropEffect = 'move'
-      setDrag(prev => (prev ? { ...prev, overId: id } : null))
+      setDrag(prev => {
+        if (!prev || prev.overId === id) return prev
+        return { ...prev, overId: id }
+      })
     },
     []
   )
@@ -76,6 +79,14 @@ export default function DynamicList<T extends { id: string }>({
   )
 
   const handleDragEnd = useCallback(() => { setDrag(null); }, [])
+
+  const moveItem = useCallback((index: number, direction: -1 | 1) => {
+    const arr = [...items]
+    if (index + direction < 0 || index + direction >= arr.length) return
+    const [moved] = arr.splice(index, 1)
+    arr.splice(index + direction, 0, moved)
+    onReorder(arr.map(i => i.id))
+  }, [items, onReorder])
 
   const requestRemove = useCallback((id: string) => { setPendingRemove(id); }, [])
   const confirmRemove = useCallback(() => {
@@ -138,7 +149,25 @@ export default function DynamicList<T extends { id: string }>({
             <div className="absolute left-2 top-1/2 -translate-y-1/2 flex flex-col gap-0.5 opacity-0 group-hover:opacity-40 cursor-grab active:cursor-grabbing transition-opacity z-10">
               <GripIcon />
             </div>
-            <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+            <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity z-10 flex items-center gap-1">
+              <button
+                type="button"
+                onClick={() => { moveItem(index, -1); }}
+                disabled={index === 0}
+                className="p-1.5 rounded-md text-neutral-500 hover:text-primary-400 hover:bg-primary-500/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                aria-label="Move up"
+              >
+                <ChevronUpIcon />
+              </button>
+              <button
+                type="button"
+                onClick={() => { moveItem(index, 1); }}
+                disabled={index === ordered.length - 1}
+                className="p-1.5 rounded-md text-neutral-500 hover:text-primary-400 hover:bg-primary-500/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                aria-label="Move down"
+              >
+                <ChevronDownIcon />
+              </button>
               <button
                 type="button"
                 onClick={() => { requestRemove(item.id); }}
@@ -219,7 +248,42 @@ function GripIcon() {
       <circle cx="9" cy="19" r="1" fill="currentColor" />
       <circle cx="15" cy="5" r="1" fill="currentColor" />
       <circle cx="15" cy="12" r="1" fill="currentColor" />
-      <circle cx="15" cy="19" r="1" fill="currentColor" />
+    </svg>
+  )
+}
+
+function ChevronUpIcon() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <polyline points="18 15 12 9 6 15" />
+    </svg>
+  )
+}
+
+function ChevronDownIcon() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <polyline points="6 9 12 15 18 9" />
     </svg>
   )
 }

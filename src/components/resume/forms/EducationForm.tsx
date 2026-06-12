@@ -10,18 +10,7 @@ import type { Education } from '@/types/resume'
 
 type Props = { resumeId: string }
 
-
-const BLANK: Omit<Education, 'id'> = {
-  institution: '',
-  degree: '',
-  field: '',
-  location: '',
-  startDate: '',
-  endDate: '',
-  current: false,
-  gpa: '',
-  highlights: [],
-}
+import { createBlankEducation } from '@/utils/resumeDefaults'
 
 export default function EducationForm({ resumeId }: Props) {
   const { activeResume, addEducation, updateEducation, removeEducation, reorderEducation } =
@@ -31,7 +20,7 @@ export default function EducationForm({ resumeId }: Props) {
   const { handleBlur, getErr } = useEntryValidation<Education>(validateEducationEntry)
 
   const handleAdd = useCallback(() => {
-    addEducation(resumeId, { ...BLANK })
+    addEducation(resumeId, createBlankEducation())
   }, [resumeId, addEducation])
 
   const handleUpdate = useCallback(

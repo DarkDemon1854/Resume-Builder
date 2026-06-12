@@ -40,7 +40,7 @@ export default function TagInput({
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === 'Enter' || e.key === ',') {
+      if ((e.key === 'Enter' || e.key === ',') && inputValue.trim()) {
         e.preventDefault()
         addTag(inputValue)
         setInputValue('')

@@ -1,18 +1,16 @@
-import { useCallback, useState } from 'react'
+import { useCallback } from 'react'
 import Input from '@/components/Input'
 import TextArea from '@/components/TextArea'
 import SectionWrapper from '@/components/resume/SectionWrapper'
 import DynamicList from '@/components/resume/DynamicList'
 import TagInput from '@/components/resume/TagInput'
 import { useResume } from '@/hooks/useResume'
+import { useEntryValidation } from '@/hooks/useEntryValidation'
 import { validateProjectEntry } from '@/validation/resumeValidation'
 import type { Project } from '@/types/resume'
 
 type Props = { resumeId: string }
 
-type EntryErrors = Partial<
-  Record<keyof Omit<Project, 'id' | 'current' | 'technologies' | 'highlights'>, string>
->
 
 const BLANK: Omit<Project, 'id'> = {
   name: '',
@@ -31,8 +29,7 @@ export default function ProjectsForm({ resumeId }: Props) {
     useResume(resumeId)
 
   const items = activeResume?.projects ?? []
-  const [entryErrors, setEntryErrors] = useState<Partial<Record<string, EntryErrors>>>({})
-  const [touched, setTouched] = useState<Record<string, Partial<Record<string, boolean>>>>({})
+  const { handleBlur, getErr } = useEntryValidation<Project>(validateProjectEntry)
 
   const handleAdd = useCallback(() => {
     addProject(resumeId, { ...BLANK })
@@ -44,25 +41,6 @@ export default function ProjectsForm({ resumeId }: Props) {
     },
     [resumeId, updateProject]
   )
-
-  const handleBlur = useCallback((entry: Project, field: string) => {
-    setTouched(prev => ({
-      ...prev,
-      [entry.id]: { ...(prev[entry.id] ?? {}), [field]: true },
-    }))
-    const result = validateProjectEntry(entry)
-    const fieldErrors: EntryErrors = {}
-    result.errors.forEach(e => {
-      fieldErrors[e.field as keyof EntryErrors] = e.message
-    })
-    setEntryErrors(prev => ({ ...prev, [entry.id]: fieldErrors }))
-  }, [])
-
-  const getErr = (id: string, field: string): string | undefined => {
-    const touchedEntry = touched[id]
-    if (!touchedEntry[field]) return undefined
-    return entryErrors[id]?.[field as keyof EntryErrors]
-  }
 
   return (
     <SectionWrapper

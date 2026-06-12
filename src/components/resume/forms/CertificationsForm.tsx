@@ -1,14 +1,14 @@
-import { useCallback, useState } from 'react'
+import { useCallback } from 'react'
 import Input from '@/components/Input'
 import SectionWrapper from '@/components/resume/SectionWrapper'
 import DynamicList from '@/components/resume/DynamicList'
 import { useResume } from '@/hooks/useResume'
+import { useEntryValidation } from '@/hooks/useEntryValidation'
 import { validateCertificationEntry } from '@/validation/resumeValidation'
 import type { Certification } from '@/types/resume'
 
 type Props = { resumeId: string }
 
-type EntryErrors = Partial<Record<keyof Omit<Certification, 'id'>, string>>
 
 const BLANK: Omit<Certification, 'id'> = {
   name: '',
@@ -28,8 +28,7 @@ export default function CertificationsForm({ resumeId }: Props) {
   } = useResume(resumeId)
 
   const items = activeResume?.certifications ?? []
-  const [entryErrors, setEntryErrors] = useState<Partial<Record<string, EntryErrors>>>({})
-  const [touched, setTouched] = useState<Record<string, Partial<Record<string, boolean>>>>({})
+  const { handleBlur, getErr } = useEntryValidation<Certification>(validateCertificationEntry)
 
   const handleAdd = useCallback(() => {
     addCertification(resumeId, { ...BLANK })
@@ -41,25 +40,6 @@ export default function CertificationsForm({ resumeId }: Props) {
     },
     [resumeId, updateCertification]
   )
-
-  const handleBlur = useCallback((entry: Certification, field: string) => {
-    setTouched(prev => ({
-      ...prev,
-      [entry.id]: { ...(prev[entry.id] ?? {}), [field]: true },
-    }))
-    const result = validateCertificationEntry(entry)
-    const fieldErrors: EntryErrors = {}
-    result.errors.forEach(e => {
-      fieldErrors[e.field as keyof EntryErrors] = e.message
-    })
-    setEntryErrors(prev => ({ ...prev, [entry.id]: fieldErrors }))
-  }, [])
-
-  const getErr = (id: string, field: string): string | undefined => {
-    const touchedEntry = touched[id]
-    if (!touchedEntry[field]) return undefined
-    return entryErrors[id]?.[field as keyof EntryErrors]
-  }
 
   return (
     <SectionWrapper

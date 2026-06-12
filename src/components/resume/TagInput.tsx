@@ -1,4 +1,4 @@
-import { useRef, useState, useCallback, type KeyboardEvent } from 'react'
+import { useRef, useState, useCallback, useId, type KeyboardEvent } from 'react'
 
 type TagInputProps = {
   value: string[]
@@ -19,7 +19,7 @@ export default function TagInput({
 }: TagInputProps) {
   const [inputValue, setInputValue] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
-  const uid = useRef(Math.random().toString(36).slice(2)).current
+  const uid = useId()
   const inputId = id ?? uid
 
   const addTag = useCallback(

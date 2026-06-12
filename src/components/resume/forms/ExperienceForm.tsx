@@ -1,16 +1,16 @@
-import { useCallback, useState } from 'react'
+import { useCallback } from 'react'
 import Input from '@/components/Input'
 import TextArea from '@/components/TextArea'
 import SectionWrapper from '@/components/resume/SectionWrapper'
 import DynamicList from '@/components/resume/DynamicList'
 import TagInput from '@/components/resume/TagInput'
 import { useResume } from '@/hooks/useResume'
+import { useEntryValidation } from '@/hooks/useEntryValidation'
 import { validateExperienceEntry } from '@/validation/resumeValidation'
 import type { Experience } from '@/types/resume'
 
 type Props = { resumeId: string }
 
-type EntryErrors = Partial<Record<keyof Omit<Experience, 'id' | 'current' | 'highlights'>, string>>
 
 const BLANK: Omit<Experience, 'id'> = {
   company: '',
@@ -28,8 +28,7 @@ export default function ExperienceForm({ resumeId }: Props) {
     useResume(resumeId)
 
   const items = activeResume?.experience ?? []
-  const [entryErrors, setEntryErrors] = useState<Partial<Record<string, EntryErrors>>>({})
-  const [touched, setTouched] = useState<Record<string, Partial<Record<string, boolean>>>>({})
+  const { handleBlur, getErr } = useEntryValidation<Experience>(validateExperienceEntry)
 
   const handleAdd = useCallback(() => {
     addExperience(resumeId, { ...BLANK })
@@ -41,28 +40,6 @@ export default function ExperienceForm({ resumeId }: Props) {
     },
     [resumeId, updateExperience]
   )
-
-  const handleBlur = useCallback(
-    (entry: Experience, field: string) => {
-      setTouched(prev => ({
-        ...prev,
-        [entry.id]: { ...(prev[entry.id] ?? {}), [field]: true },
-      }))
-      const result = validateExperienceEntry(entry)
-      const fieldErrors: EntryErrors = {}
-      result.errors.forEach(e => {
-        fieldErrors[e.field as keyof EntryErrors] = e.message
-      })
-      setEntryErrors(prev => ({ ...prev, [entry.id]: fieldErrors }))
-    },
-    []
-  )
-
-  const getErr = (id: string, field: string): string | undefined => {
-    const touchedEntry = touched[id]
-    if (!touchedEntry[field]) return undefined
-    return entryErrors[id]?.[field as keyof EntryErrors]
-  }
 
   return (
     <SectionWrapper

@@ -1,15 +1,15 @@
-import { useCallback, useState } from 'react'
+import { useCallback } from 'react'
 import Input from '@/components/Input'
 import SectionWrapper from '@/components/resume/SectionWrapper'
 import DynamicList from '@/components/resume/DynamicList'
 import TagInput from '@/components/resume/TagInput'
 import { useResume } from '@/hooks/useResume'
+import { useEntryValidation } from '@/hooks/useEntryValidation'
 import { validateEducationEntry } from '@/validation/resumeValidation'
 import type { Education } from '@/types/resume'
 
 type Props = { resumeId: string }
 
-type EntryErrors = Partial<Record<keyof Omit<Education, 'id' | 'current' | 'highlights'>, string>>
 
 const BLANK: Omit<Education, 'id'> = {
   institution: '',
@@ -28,8 +28,7 @@ export default function EducationForm({ resumeId }: Props) {
     useResume(resumeId)
 
   const items = activeResume?.education ?? []
-  const [entryErrors, setEntryErrors] = useState<Partial<Record<string, EntryErrors>>>({})
-  const [touched, setTouched] = useState<Record<string, Partial<Record<string, boolean>>>>({})
+  const { handleBlur, getErr } = useEntryValidation<Education>(validateEducationEntry)
 
   const handleAdd = useCallback(() => {
     addEducation(resumeId, { ...BLANK })
@@ -41,25 +40,6 @@ export default function EducationForm({ resumeId }: Props) {
     },
     [resumeId, updateEducation]
   )
-
-  const handleBlur = useCallback((entry: Education, field: string) => {
-    setTouched(prev => ({
-      ...prev,
-      [entry.id]: { ...(prev[entry.id] ?? {}), [field]: true },
-    }))
-    const result = validateEducationEntry(entry)
-    const fieldErrors: EntryErrors = {}
-    result.errors.forEach(e => {
-      fieldErrors[e.field as keyof EntryErrors] = e.message
-    })
-    setEntryErrors(prev => ({ ...prev, [entry.id]: fieldErrors }))
-  }, [])
-
-  const getErr = (id: string, field: string): string | undefined => {
-    const touchedEntry = touched[id]
-    if (!touchedEntry[field]) return undefined
-    return entryErrors[id]?.[field as keyof EntryErrors]
-  }
 
   return (
     <SectionWrapper

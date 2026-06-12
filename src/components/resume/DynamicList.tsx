@@ -1,4 +1,4 @@
-import { useRef, useState, useCallback, type ReactNode } from 'react'
+import { useState, useCallback, type ReactNode } from 'react'
 import Button from '@/components/Button'
 
 type DynamicListProps<T extends { id: string }> = {
@@ -27,7 +27,7 @@ export default function DynamicList<T extends { id: string }>({
 }: DynamicListProps<T>) {
   const [drag, setDrag] = useState<DragState | null>(null)
   const [pendingRemove, setPendingRemove] = useState<string | null>(null)
-  const containerRef = useRef<HTMLDivElement>(null)
+
 
   const ordered = drag
     ? (() => {
@@ -98,7 +98,7 @@ export default function DynamicList<T extends { id: string }>({
   }
 
   return (
-    <div className="flex flex-col gap-3" ref={containerRef}>
+    <div className="flex flex-col gap-3" role="list" aria-label="Reorderable items">
       {pendingRemove && (
         <div className="flex items-center justify-between gap-3 px-4 py-3 rounded-lg border border-danger-500/40 bg-danger-600/10 animate-fade-in">
           <span className="text-sm text-danger-300">Remove this entry?</span>
@@ -119,6 +119,7 @@ export default function DynamicList<T extends { id: string }>({
         return (
           <div
             key={item.id}
+            role="listitem"
             draggable
             onDragStart={e => { handleDragStart(e, item.id); }}
             onDragOver={e => { handleDragOver(e, item.id); }}

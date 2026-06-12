@@ -8,9 +8,19 @@ import { useEntryValidation } from '@/hooks/useEntryValidation'
 import { validateEducationEntry } from '@/validation/resumeValidation'
 import type { Education } from '@/types/resume'
 
-type Props = { resumeId: string }
+const BLANK: Omit<Education, 'id'> = {
+  institution: '',
+  degree: '',
+  field: '',
+  location: '',
+  startDate: '',
+  endDate: '',
+  current: false,
+  gpa: '',
+  highlights: [],
+}
 
-import { createBlankEducation } from '@/utils/resumeDefaults'
+type Props = { resumeId: string }
 
 export default function EducationForm({ resumeId }: Props) {
   const { activeResume, addEducation, updateEducation, removeEducation, reorderEducation } =
@@ -20,7 +30,7 @@ export default function EducationForm({ resumeId }: Props) {
   const { handleBlur, getErr } = useEntryValidation<Education>(validateEducationEntry)
 
   const handleAdd = useCallback(() => {
-    addEducation(resumeId, createBlankEducation())
+    addEducation(resumeId, { ...BLANK })
   }, [resumeId, addEducation])
 
   const handleUpdate = useCallback(

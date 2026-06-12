@@ -1,4 +1,4 @@
-import { useRef, useState, useCallback, useId, type KeyboardEvent } from 'react'
+import { useRef, useState, useCallback, useId, type KeyboardEvent, type ChangeEvent } from 'react'
 
 type TagInputProps = {
   value: string[]
@@ -40,7 +40,7 @@ export default function TagInput({
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent<HTMLInputElement>) => {
-      if ((e.key === 'Enter' || e.key === ',') && inputValue.trim()) {
+      if (e.key === 'Enter' || e.key === ',') {
         e.preventDefault()
         addTag(inputValue)
         setInputValue('')
@@ -53,7 +53,7 @@ export default function TagInput({
     [inputValue, value, addTag, removeTag]
   )
 
-  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value
     if (val.endsWith(',')) {
       addTag(val.slice(0, -1))

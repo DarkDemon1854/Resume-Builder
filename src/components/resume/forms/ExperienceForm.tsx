@@ -9,9 +9,18 @@ import { useEntryValidation } from '@/hooks/useEntryValidation'
 import { validateExperienceEntry } from '@/validation/resumeValidation'
 import type { Experience } from '@/types/resume'
 
-type Props = { resumeId: string }
+const BLANK: Omit<Experience, 'id'> = {
+  company: '',
+  position: '',
+  location: '',
+  startDate: '',
+  endDate: '',
+  current: false,
+  description: '',
+  highlights: [],
+}
 
-import { createBlankExperience } from '@/utils/resumeDefaults'
+type Props = { resumeId: string }
 
 export default function ExperienceForm({ resumeId }: Props) {
   const { activeResume, addExperience, updateExperience, removeExperience, reorderExperience } =
@@ -21,7 +30,7 @@ export default function ExperienceForm({ resumeId }: Props) {
   const { handleBlur, getErr } = useEntryValidation<Experience>(validateExperienceEntry)
 
   const handleAdd = useCallback(() => {
-    addExperience(resumeId, createBlankExperience())
+    addExperience(resumeId, { ...BLANK })
   }, [resumeId, addExperience])
 
   const handleUpdate = useCallback(

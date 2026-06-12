@@ -8,9 +8,12 @@ import { useEntryValidation } from '@/hooks/useEntryValidation'
 import { validateSkillEntry } from '@/validation/resumeValidation'
 import type { Skill } from '@/types/resume'
 
-type Props = { resumeId: string }
+const BLANK: Omit<Skill, 'id'> = {
+  category: '',
+  items: [],
+}
 
-import { createBlankSkill } from '@/utils/resumeDefaults'
+type Props = { resumeId: string }
 
 export default function SkillsForm({ resumeId }: Props) {
   const { activeResume, addSkill, updateSkill, removeSkill, reorderSkills } = useResume(resumeId)
@@ -19,7 +22,7 @@ export default function SkillsForm({ resumeId }: Props) {
   const { handleBlur, getErr } = useEntryValidation<Skill>(validateSkillEntry)
 
   const handleAdd = useCallback(() => {
-    addSkill(resumeId, createBlankSkill())
+    addSkill(resumeId, { ...BLANK })
   }, [resumeId, addSkill])
 
   const handleUpdate = useCallback(

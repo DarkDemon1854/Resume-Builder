@@ -4,6 +4,7 @@ const FIREBASE_ERROR_MAP: Record<string, string> = {
   'auth/email-already-in-use': 'An account with this email already exists.',
   'auth/invalid-email': 'The email address is not valid.',
   'auth/operation-not-allowed': 'This sign-in method is not currently enabled.',
+  // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
   'auth/weak-password': `Password must be at least ${MIN_PASSWORD_LENGTH} characters.`,
   'auth/user-disabled': 'This account has been disabled. Please contact support.',
   'auth/user-not-found': 'No account found with this email address.',

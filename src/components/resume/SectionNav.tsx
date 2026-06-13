@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState, type DragEvent } from 'react'
+import { useCallback, useRef, useState, useEffect, type DragEvent } from 'react'
 import { SECTION_META, type ResumeSectionKey } from '@/constants'
 import { useIsMobile } from '@/hooks/useMediaQuery'
 import Button from '@/components/Button'
@@ -51,6 +51,15 @@ type MobileNavProps = Omit<Props, 'onReorder'>
 
 function MobileNav({ sections, activeSection, onSelect, validation }: MobileNavProps) {
   const scrollRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      const activeBtn = scrollRef.current.querySelector('[aria-current="true"]')
+      if (activeBtn) {
+        activeBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' })
+      }
+    }
+  }, [activeSection])
 
   return (
     <div
@@ -166,7 +175,8 @@ function DesktopNav({ sections, activeSection, onSelect, onReorder, validation }
           const isDragging = drag?.dragKey === key
 
           return (
-            <div
+            <button
+              type="button"
               key={key}
               draggable
               onDragStart={(e) => { handleDragStart(e, key) }}
@@ -183,13 +193,8 @@ function DesktopNav({ sections, activeSection, onSelect, onReorder, validation }
                 .filter(Boolean)
                 .join(' ')}
               onClick={() => { onSelect(key) }}
-              role="button"
-              tabIndex={0}
               onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault()
-                  onSelect(key)
-                } else if (e.altKey && e.key === 'ArrowUp') {
+                if (e.altKey && e.key === 'ArrowUp') {
                   e.preventDefault()
                   moveUp(idx)
                 } else if (e.altKey && e.key === 'ArrowDown') {
@@ -214,7 +219,7 @@ function DesktopNav({ sections, activeSection, onSelect, onReorder, validation }
               <span className="shrink-0 opacity-0 group-hover:opacity-40 cursor-grab active:cursor-grabbing transition-opacity">
                 <GripIcon />
               </span>
-            </div>
+            </button>
           )
         })}
       </div>

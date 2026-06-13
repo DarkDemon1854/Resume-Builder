@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from 'react'
+import { useState, useCallback, useRef, useEffect, type KeyboardEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useResume } from '@/hooks/useResume'
 import { ROUTES } from '@/constants'
@@ -42,7 +42,7 @@ export default function BuilderHeader({ resumeId, progress }: Props) {
   }, [title, activeResume?.title, resumeId, updateResume])
 
   const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
+    (e: KeyboardEvent<HTMLInputElement>) => {
       if (e.key === 'Enter') {
         commitTitle()
       } else if (e.key === 'Escape') {

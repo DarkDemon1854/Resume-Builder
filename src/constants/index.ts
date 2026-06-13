@@ -43,6 +43,20 @@ export const RESUME_SECTIONS = [
 
 export type ResumeSectionKey = (typeof RESUME_SECTIONS)[number]
 
+export type SectionIconName = 'user' | 'file-text' | 'briefcase' | 'graduation' | 'sparkle' | 'code' | 'badge' | 'globe' | 'trophy'
+
+export const SECTION_META: Record<ResumeSectionKey, { label: string; icon: SectionIconName }> = {
+  personalInfo: { label: 'Personal Info', icon: 'user' },
+  summary: { label: 'Summary', icon: 'file-text' },
+  experience: { label: 'Experience', icon: 'briefcase' },
+  education: { label: 'Education', icon: 'graduation' },
+  skills: { label: 'Skills', icon: 'sparkle' },
+  projects: { label: 'Projects', icon: 'code' },
+  certifications: { label: 'Certifications', icon: 'badge' },
+  languages: { label: 'Languages', icon: 'globe' },
+  awards: { label: 'Awards', icon: 'trophy' },
+}
+
 export const MAX_RESUMES = 20
 export const AUTOSAVE_DELAY_MS = 800
 export const API_TIMEOUT_MS = 15_000

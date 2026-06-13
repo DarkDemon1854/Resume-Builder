@@ -43,7 +43,9 @@ export const RESUME_SECTIONS = [
 
 export type ResumeSectionKey = (typeof RESUME_SECTIONS)[number]
 
-export const SECTION_META: Record<ResumeSectionKey, { label: string; icon: string }> = {
+export type SectionIconName = 'user' | 'file-text' | 'briefcase' | 'graduation' | 'sparkle' | 'code' | 'badge' | 'globe' | 'trophy'
+
+export const SECTION_META: Record<ResumeSectionKey, { label: string; icon: SectionIconName }> = {
   personalInfo: { label: 'Personal Info', icon: 'user' },
   summary: { label: 'Summary', icon: 'file-text' },
   experience: { label: 'Experience', icon: 'briefcase' },

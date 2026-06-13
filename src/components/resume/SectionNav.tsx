@@ -1,5 +1,5 @@
-import { useCallback, useRef, useState } from 'react'
-import { SECTION_META, type ResumeSectionKey } from '@/constants'
+import { useCallback, useRef, useState, type DragEvent } from 'react'
+import { SECTION_META, type ResumeSectionKey, type SectionIconName } from '@/constants'
 import { useIsMobile } from '@/hooks/useMediaQuery'
 import Button from '@/components/Button'
 
@@ -100,17 +100,17 @@ function DesktopNav({ sections, activeSection, onSelect, onReorder, validation }
       })()
     : sections
 
-  const handleDragStart = useCallback((_e: React.DragEvent, key: ResumeSectionKey) => {
+  const handleDragStart = useCallback((_e: DragEvent, key: ResumeSectionKey) => {
     setDrag({ dragKey: key, overKey: null })
   }, [])
 
-  const handleDragOver = useCallback((e: React.DragEvent, key: ResumeSectionKey) => {
+  const handleDragOver = useCallback((e: DragEvent, key: ResumeSectionKey) => {
     e.preventDefault()
     setDrag((prev) => (prev ? { ...prev, overKey: key } : null))
   }, [])
 
   const handleDrop = useCallback(
-    (e: React.DragEvent) => {
+    (e: DragEvent) => {
       e.preventDefault()
       if (!drag) return
       const arr = [...sections]
@@ -282,7 +282,7 @@ function RewindIcon() {
 }
 
 type SectionIconProps = {
-  name: string
+  name: SectionIconName
   size?: number
 }
 

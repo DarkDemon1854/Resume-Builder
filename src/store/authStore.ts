@@ -77,3 +77,4 @@ export const selectAuthError = (state: AuthStore) => state.error
 export const selectSessionChecked = (state: AuthStore) => state.sessionChecked
 
 export type { AuthUser, AuthStatus }
+

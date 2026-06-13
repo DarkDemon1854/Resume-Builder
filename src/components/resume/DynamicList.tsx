@@ -150,7 +150,7 @@ export default function DynamicList<T extends { id: string }>({
             key={item.id}
             role="listitem"
             aria-roledescription="reorderable item"
-            aria-label={`Item ${index + 1} of ${ordered.length}`}
+            aria-label={`Item ${String(index + 1)} of ${String(ordered.length)}`}
             draggable
             onDragStart={e => { handleDragStart(e, item.id); }}
             onDragOver={e => { handleDragOver(e, item.id); }}
@@ -178,7 +178,7 @@ export default function DynamicList<T extends { id: string }>({
                 onClick={() => { moveUp(item.id); }}
                 disabled={isFirst}
                 className="p-0.5 rounded text-neutral-500 hover:text-primary-300 disabled:opacity-20 disabled:cursor-not-allowed transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-primary-500"
-                aria-label={`Move item ${index + 1} up`}
+                aria-label={`Move item ${String(index + 1)} up`}
               >
                 <ChevronUpIcon />
               </button>
@@ -187,7 +187,7 @@ export default function DynamicList<T extends { id: string }>({
                 onClick={() => { moveDown(item.id); }}
                 disabled={isLast}
                 className="p-0.5 rounded text-neutral-500 hover:text-primary-300 disabled:opacity-20 disabled:cursor-not-allowed transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-primary-500"
-                aria-label={`Move item ${index + 1} down`}
+                aria-label={`Move item ${String(index + 1)} down`}
               >
                 <ChevronDownIcon />
               </button>

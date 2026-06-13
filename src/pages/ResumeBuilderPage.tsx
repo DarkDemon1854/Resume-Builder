@@ -1,5 +1,5 @@
 import { useCallback } from 'react'
-import { useParams, Navigate } from 'react-router-dom'
+import { useParams, Navigate, useNavigate } from 'react-router-dom'
 import { useResume } from '@/hooks/useResume'
 import { useBuilderNavigation } from '@/hooks/useBuilderNavigation'
 import { useSectionValidation } from '@/hooks/useSectionValidation'
@@ -14,6 +14,7 @@ import { toast } from '@/store/toastStore'
 
 export default function ResumeBuilderPage() {
   const { resumeId } = useParams<{ resumeId: string }>()
+  const navigate = useNavigate()
   const { activeResume, isLoading, reorderSections } = useResume(resumeId)
   const isMobile = useIsMobile()
 
@@ -60,7 +61,7 @@ export default function ResumeBuilderPage() {
         <Button
           variant="primary"
           size="md"
-          onClick={() => { window.location.href = ROUTES.DASHBOARD }}
+          onClick={() => { navigate(ROUTES.DASHBOARD) }}
         >
           Back to Dashboard
         </Button>

@@ -17,8 +17,8 @@ type Props = {
 }
 
 type DragState = {
-  dragIdx: number
-  overIdx: number | null
+  dragKey: ResumeSectionKey
+  overKey: ResumeSectionKey | null
 }
 
 export default function SectionNav({ sections, activeSection, onSelect, onReorder, validation }: Props) {
@@ -91,22 +91,22 @@ function DesktopNav({ sections, activeSection, onSelect, onReorder, validation }
   const ordered = drag
     ? (() => {
         const arr = [...sections]
-        const fromIdx = drag.dragIdx
-        const toIdx = drag.overIdx ?? fromIdx
-        if (fromIdx === toIdx) return arr
+        const fromIdx = arr.indexOf(drag.dragKey)
+        const toIdx = drag.overKey ? arr.indexOf(drag.overKey) : fromIdx
+        if (fromIdx === -1 || toIdx === -1 || fromIdx === toIdx) return arr
         const [moved] = arr.splice(fromIdx, 1)
         arr.splice(toIdx, 0, moved)
         return arr
       })()
     : sections
 
-  const handleDragStart = useCallback((_e: React.DragEvent, idx: number) => {
-    setDrag({ dragIdx: idx, overIdx: null })
+  const handleDragStart = useCallback((_e: React.DragEvent, key: ResumeSectionKey) => {
+    setDrag({ dragKey: key, overKey: null })
   }, [])
 
-  const handleDragOver = useCallback((e: React.DragEvent, idx: number) => {
+  const handleDragOver = useCallback((e: React.DragEvent, key: ResumeSectionKey) => {
     e.preventDefault()
-    setDrag((prev) => (prev ? { ...prev, overIdx: idx } : null))
+    setDrag((prev) => (prev ? { ...prev, overKey: key } : null))
   }, [])
 
   const handleDrop = useCallback(
@@ -114,9 +114,9 @@ function DesktopNav({ sections, activeSection, onSelect, onReorder, validation }
       e.preventDefault()
       if (!drag) return
       const arr = [...sections]
-      const fromIdx = drag.dragIdx
-      const toIdx = drag.overIdx ?? fromIdx
-      if (fromIdx !== toIdx) {
+      const fromIdx = arr.indexOf(drag.dragKey)
+      const toIdx = drag.overKey ? arr.indexOf(drag.overKey) : fromIdx
+      if (fromIdx !== -1 && toIdx !== -1 && fromIdx !== toIdx) {
         const [moved] = arr.splice(fromIdx, 1)
         arr.splice(toIdx, 0, moved)
         onReorder(arr)
@@ -162,14 +162,14 @@ function DesktopNav({ sections, activeSection, onSelect, onReorder, validation }
           const meta = SECTION_META[key]
           const status = validation[key]
           const isActive = key === activeSection
-          const isDragging = drag?.dragIdx === sections.indexOf(key)
+          const isDragging = drag?.dragKey === key
 
           return (
             <div
               key={key}
               draggable
-              onDragStart={(e) => { handleDragStart(e, sections.indexOf(key)) }}
-              onDragOver={(e) => { handleDragOver(e, idx) }}
+              onDragStart={(e) => { handleDragStart(e, key) }}
+              onDragOver={(e) => { handleDragOver(e, key) }}
               onDrop={handleDrop}
               onDragEnd={handleDragEnd}
               className={[

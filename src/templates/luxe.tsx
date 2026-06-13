@@ -1,274 +1,122 @@
-﻿import type {
-  Resume,
-  PersonalInfoContent,
-  SummaryContent,
-  WorkExperienceContent,
-  EducationContent,
-  SkillsContent,
-  ProjectsContent,
-  CertificationsContent,
-  LanguagesContent,
-  CustomContent,
-  GitHubContent,
-} from './resume-types';
-import { AvatarImage } from './AvatarImage';
-import { degreeField, isSectionEmpty, md } from './render-utils';
-import { QrCodesPreview } from './QrCodesPreview';
+import type { TemplateProps } from './types'
+import { AvatarImage } from './AvatarImage'
+import { md } from './render-utils'
 
-const GOLD = '#d4af37';
-const TEXT = '#000000';
-const BG = '#fafaf9';
+const GOLD = '#d4af37'
+const TEXT = '#000000'
+const BG = '#fafaf9'
 
-export function LuxeTemplate({ resume }: { resume: Resume }) {
-  const personalInfo = resume.sections.find((s) => s.type === 'personal_info');
-  const pi = (personalInfo?.content || {}) as PersonalInfoContent;
+export function LuxeTemplate({ resume }: TemplateProps) {
+  const pi = resume.personalInfo
+  const vis = new Set(resume.visibleSections)
+
+  const SH = ({ title }: { title: string }) => (
+    <div className="mb-4 text-center">
+      <h2 className="text-[10px] font-bold uppercase tracking-[0.4em]" style={{ color: GOLD }}>{title}</h2>
+      <div className="mx-auto mt-1 w-12 h-px" style={{ backgroundColor: GOLD }} />
+    </div>
+  )
 
   return (
-    <div className="mx-auto max-w-[210mm] shadow-lg" style={{ fontFamily: 'Georgia, serif', backgroundColor: BG }}>
-      {}
-      <div className="mb-8 border-b-2 pb-6" style={{ borderColor: GOLD }}>
-        <div className="text-center">
-          {pi.avatar && (
-            <AvatarImage src={pi.avatar} size={80} avatarStyle={resume.themeConfig?.avatarStyle} className="mx-auto mb-3 border-2" style={{ borderColor: GOLD }} />
-          )}
-          <h1 className="text-3xl font-bold tracking-wider uppercase" style={{ color: TEXT, letterSpacing: '0.15em' }}>{pi.fullName || 'Your Name'}</h1>
-          {pi.jobTitle && (
-            <p className="mt-2 text-sm tracking-[0.2em] uppercase" style={{ color: GOLD }}>{pi.jobTitle}</p>
-          )}
-          {}
-          <div className="mx-auto mt-4 flex items-center justify-center gap-2">
-            <div className="h-px w-16" style={{ backgroundColor: GOLD }} />
-            <div className="h-2 w-2 rotate-45" style={{ backgroundColor: GOLD }} />
-            <div className="h-px w-16" style={{ backgroundColor: GOLD }} />
-          </div>
-          <div className="mt-3 flex flex-wrap items-center justify-center gap-4 text-xs" style={{ color: '#78716c' }}>
-            {pi.age && <span>{pi.age}</span>}
-            {pi.politicalStatus && <span>{pi.politicalStatus}</span>}
-            {pi.gender && <span>{pi.gender}</span>}
-            {pi.ethnicity && <span>{pi.ethnicity}</span>}
-            {pi.hometown && <span>{pi.hometown}</span>}
-            {pi.maritalStatus && <span>{pi.maritalStatus}</span>}
-            {pi.yearsOfExperience && <span>{pi.yearsOfExperience}</span>}
-            {pi.educationLevel && <span>{pi.educationLevel}</span>}
-            {pi.email && <span>{pi.email}</span>}
-            {pi.phone && <span>{pi.phone}</span>}
-            {pi.wechat && <span>{pi.wechat}</span>}
-            {pi.location && <span>{pi.location}</span>}
-            {pi.website && <span>{pi.website}</span>}
-          </div>
+    <div className="mx-auto max-w-[210mm] shadow-lg" style={{ fontFamily: "'Georgia', 'Times New Roman', serif", backgroundColor: BG }}>
+      <div className="px-12 pt-10 pb-6 text-center" style={{ borderBottom: `1px solid ${GOLD}` }}>
+        {pi.avatar && <AvatarImage src={pi.avatar} avatarStyle="circle" size={80} className="mx-auto mb-4" wrapperStyle={{ border: `2px solid ${GOLD}` }} />}
+        <h1 className="text-3xl font-bold tracking-[0.12em]" style={{ color: TEXT }}>{pi.fullName || 'Your Name'}</h1>
+        {pi.title && <p className="mt-1 text-xs uppercase tracking-[0.4em]" style={{ color: GOLD }}>{pi.title}</p>}
+        <div className="mt-4 flex flex-wrap justify-center gap-x-4 gap-y-1 text-xs" style={{ color: '#78716c' }}>
+          {[pi.age, pi.gender, pi.hometown, pi.maritalStatus, pi.yearsOfExperience, pi.educationLevel, pi.email, pi.phone, pi.wechat, pi.location, pi.website, pi.linkedin].filter(Boolean).map((c, i) => <span key={i}>{c}</span>)}
         </div>
       </div>
-
-      {}
-      {resume.sections
-        .filter((s) => s.visible && s.type !== 'personal_info' && !isSectionEmpty(s))
-        .map((section) => (
-          <div key={section.id} className="mb-7" data-section>
-            {}
-            <div className="mb-4 flex items-center gap-3">
-              <div className="h-px flex-1" style={{ backgroundColor: GOLD }} />
-              <h2 className="shrink-0 text-xs font-bold uppercase tracking-[0.2em]" style={{ color: GOLD }}>{section.title}</h2>
-              <div className="h-px flex-1" style={{ backgroundColor: GOLD }} />
+      <div className="px-12 py-8">
+        {vis.has('summary') && pi.summary && (
+          <div className="mb-6" data-section><SH title="Profile" /><p className="text-sm leading-relaxed text-zinc-600 italic text-center" dangerouslySetInnerHTML={{ __html: md(pi.summary) }} /></div>
+        )}
+        {vis.has('experience') && resume.experience.length > 0 && (
+          <div className="mb-6" data-section>
+            <SH title="Experience" />
+            <div className="space-y-4">
+              {resume.experience.map(exp => (
+                <div key={exp.id}>
+                  <div className="flex items-baseline justify-between">
+                    <span className="text-sm font-bold" style={{ color: TEXT }}>{exp.position}</span>
+                    <span className="shrink-0 text-xs" style={{ color: GOLD }}>{exp.period}</span>
+                  </div>
+                  {exp.company && <p className="text-sm italic text-zinc-500">{exp.company}{exp.location ? `, ${exp.location}` : ''}</p>}
+                  {exp.description && <p className="mt-1 text-sm text-zinc-600" dangerouslySetInnerHTML={{ __html: md(exp.description) }} />}
+                  {exp.highlights.length > 0 && <ul className="mt-1 list-disc pl-4">{exp.highlights.map((h, i) => <li key={i} className="text-sm text-zinc-600" dangerouslySetInnerHTML={{ __html: md(h) }} />)}</ul>}
+                </div>
+              ))}
             </div>
-            <LuxeSectionContent section={section} lang={resume.language} />
           </div>
-        ))}
+        )}
+        {vis.has('education') && resume.education.length > 0 && (
+          <div className="mb-6" data-section>
+            <SH title="Education" />
+            <div className="space-y-3">
+              {resume.education.map(edu => (
+                <div key={edu.id}>
+                  <div className="flex items-baseline justify-between">
+                    <span className="text-sm font-bold" style={{ color: TEXT }}>{edu.institution}</span>
+                    <span className="text-xs" style={{ color: GOLD }}>{edu.period}</span>
+                  </div>
+                  <p className="text-sm italic text-zinc-500">{edu.degree}</p>
+                  {edu.gpa && <p className="text-xs text-zinc-500">GPA: {edu.gpa}</p>}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        {vis.has('skills') && resume.skills.length > 0 && (
+          <div className="mb-6" data-section>
+            <SH title="Expertise" />
+            <div className="space-y-1.5">
+              {resume.skills.map(skill => (
+                <div key={skill.id} className="flex text-sm">
+                  <span className="w-32 shrink-0 font-bold" style={{ color: TEXT }}>{skill.category}:</span>
+                  <span className="text-zinc-600 italic">{skill.items.join(', ')}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        {vis.has('certifications') && resume.certifications.length > 0 && (
+          <div className="mb-6" data-section>
+            <SH title="Certifications" />
+            <div className="space-y-1.5">
+              {resume.certifications.map(cert => (
+                <div key={cert.id} className="flex items-baseline justify-between text-sm">
+                  <div><span className="font-bold" style={{ color: TEXT }}>{cert.name}</span>{cert.issuer && <span className="text-zinc-500 italic"> — {cert.issuer}</span>}</div>
+                  {cert.date && <span className="text-xs" style={{ color: GOLD }}>{cert.date}</span>}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        {vis.has('languages') && resume.languages.length > 0 && (
+          <div className="mb-6" data-section>
+            <SH title="Languages" />
+            <div className="flex flex-wrap justify-center gap-x-6 gap-y-1">
+              {resume.languages.map(lang => <span key={lang.id} className="text-sm"><span className="font-bold" style={{ color: TEXT }}>{lang.language}</span><span className="text-zinc-500 italic"> — {lang.proficiency}</span></span>)}
+            </div>
+          </div>
+        )}
+        {vis.has('awards') && resume.awards.length > 0 && (
+          <div className="mb-6" data-section>
+            <SH title="Honours" />
+            <div className="space-y-2">
+              {resume.awards.map(award => (
+                <div key={award.id}>
+                  <div className="flex items-baseline justify-between">
+                    <div><span className="text-sm font-bold" style={{ color: TEXT }}>{award.title}</span>{award.issuer && <span className="text-sm italic text-zinc-500"> — {award.issuer}</span>}</div>
+                    {award.date && <span className="text-xs" style={{ color: GOLD }}>{award.date}</span>}
+                  </div>
+                  {award.description && <p className="mt-0.5 text-sm text-zinc-600" dangerouslySetInnerHTML={{ __html: md(award.description) }} />}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
-  );
-}
-
-function LuxeSectionContent({ section, lang }: { section: any; lang?: string }) {
-  const content = section.content;
-  if (!content) return null;
-
-  if (section.type === 'summary') {
-    return (
-      <p className="text-center text-sm italic leading-relaxed" style={{ color: '#44403c' }} dangerouslySetInnerHTML={{ __html: md((content as SummaryContent).text) }} />
-    );
-  }
-
-  if (section.type === 'work_experience') {
-    return (
-      <div className="space-y-5">
-        {((content as WorkExperienceContent).items || []).map((item: any) => (
-          <div key={item.id} className="border-l-2 pl-4" style={{ borderColor: GOLD }}>
-            <div className="flex items-baseline justify-between">
-              <h3 className="text-sm font-bold" style={{ color: TEXT }}>{item.position}</h3>
-              <span className="shrink-0 text-xs italic" style={{ color: '#a8a29e' }}>{item.startDate} &ndash; {item.endDate || (item.current ? (lang === 'zh' ? 'è‡³ä»Š' : 'Present') : '')}</span>
-            </div>
-            {item.company && <p className="text-sm" style={{ color: GOLD }}>{item.company}{item.location ? `, ${item.location}` : ''}</p>}
-            {item.description && <p className="mt-1 text-sm" style={{ color: '#44403c' }} dangerouslySetInnerHTML={{ __html: md(item.description) }} />}
-            {item.technologies?.length > 0 && (
-              <p className="mt-0.5 text-xs italic" style={{ color: '#a8a29e' }}>{lang === 'zh' ? 'æŠ€æœ¯æ ˆ' : 'Tech'}: {item.technologies.join(', ')}</p>
-            )}
-            {item.highlights?.length > 0 && (
-              <ul className="mt-1.5 list-none space-y-0.5">
-                {item.highlights.map((h: string, i: number) => (
-                  <li key={i} className="flex items-start gap-2 text-sm" style={{ color: '#44403c' }}>
-                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rotate-45" style={{ backgroundColor: GOLD }} />
-                    <span dangerouslySetInnerHTML={{ __html: md(h) }} />
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  if (section.type === 'education') {
-    return (
-      <div className="space-y-4">
-        {((content as EducationContent).items || []).map((item: any) => (
-          <div key={item.id} className="border-l-2 pl-4" style={{ borderColor: GOLD }}>
-            <div className="flex items-baseline justify-between">
-              <h3 className="text-sm font-bold" style={{ color: TEXT }}>{degreeField(item.degree, item.field)}</h3>
-              <span className="shrink-0 text-xs italic" style={{ color: '#a8a29e' }}>{item.startDate} &ndash; {item.endDate || (lang === 'zh' ? 'è‡³ä»Š' : 'Present')}</span>
-            </div>
-            {item.institution && <p className="text-sm" style={{ color: GOLD }}>{item.institution}{item.location ? `, ${item.location}` : ''}</p>}
-            {item.gpa && <p className="text-xs" style={{ color: '#a8a29e' }}>GPA: {item.gpa}</p>}
-            {item.highlights?.length > 0 && (
-              <ul className="mt-1 list-none space-y-0.5">
-                {item.highlights.map((h: string, i: number) => (
-                  <li key={i} className="flex items-start gap-2 text-sm" style={{ color: '#44403c' }}>
-                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rotate-45" style={{ backgroundColor: GOLD }} />
-                    <span dangerouslySetInnerHTML={{ __html: md(h) }} />
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  if (section.type === 'skills') {
-    return (
-      <div className="space-y-1.5">
-        {((content as SkillsContent).categories || []).map((cat: any) => (
-          <div key={cat.id} className="flex text-sm">
-            <span className="w-32 shrink-0 font-bold" style={{ color: GOLD }}>{cat.name}:</span>
-            <span style={{ color: '#44403c' }}>{(cat.skills || []).join(', ')}</span>
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  if (section.type === 'projects') {
-    return (
-      <div className="space-y-4">
-        {((content as ProjectsContent).items || []).map((item: any) => (
-          <div key={item.id} className="border-l-2 pl-4" style={{ borderColor: GOLD }}>
-            <div className="flex items-baseline justify-between">
-              <h3 className="text-sm font-bold" style={{ color: TEXT }}>{item.name}</h3>
-              {item.startDate && (
-                <span className="shrink-0 text-xs italic" style={{ color: '#a8a29e' }}>{item.startDate} {'\u2013'} {item.endDate || (lang === 'zh' ? 'è‡³ä»Š' : 'Present')}</span>
-              )}
-            </div>
-            {item.description && <p className="mt-0.5 text-sm" style={{ color: '#44403c' }} dangerouslySetInnerHTML={{ __html: md(item.description) }} />}
-            {item.technologies?.length > 0 && (
-              <p className="mt-0.5 text-xs italic" style={{ color: '#a8a29e' }}>{lang === 'zh' ? 'æŠ€æœ¯æ ˆ' : 'Tech'}: {item.technologies.join(', ')}</p>
-            )}
-            {item.highlights?.length > 0 && (
-              <ul className="mt-1 list-none space-y-0.5">
-                {item.highlights.map((h: string, i: number) => (
-                  <li key={i} className="flex items-start gap-2 text-sm" style={{ color: '#44403c' }}>
-                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rotate-45" style={{ backgroundColor: GOLD }} />
-                    <span dangerouslySetInnerHTML={{ __html: md(h) }} />
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  if (section.type === 'certifications') {
-    return (
-      <div className="space-y-2">
-        {((content as CertificationsContent).items || []).map((item: any) => (
-          <div key={item.id} className="flex items-baseline justify-between">
-            <div>
-              <span className="text-sm font-bold" style={{ color: TEXT }}>{item.name}</span>
-              {item.issuer && <span className="text-sm" style={{ color: '#a8a29e' }}> &mdash; {item.issuer}</span>}
-            </div>
-            {item.date && <span className="shrink-0 text-xs italic" style={{ color: GOLD }}>{item.date}</span>}
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  if (section.type === 'languages') {
-    return (
-      <div className="flex flex-wrap gap-4">
-        {((content as LanguagesContent).items || []).map((item: any) => (
-          <div key={item.id} className="flex items-center gap-2">
-            <span className="h-1.5 w-1.5 rotate-45" style={{ backgroundColor: GOLD }} />
-            <span className="text-sm font-bold" style={{ color: TEXT }}>{item.language}</span>
-            <span className="text-xs" style={{ color: '#a8a29e' }}>{item.proficiency}</span>
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  if (section.type === 'github') {
-    const items = (content as GitHubContent).items || [];
-    return (
-      <div className="space-y-4">
-        {items.map((item: any) => (
-          <div key={item.id} className="border-l-2 pl-4" style={{ borderColor: GOLD }}>
-            <div className="flex items-baseline justify-between">
-              <h3 className="text-sm font-bold" style={{ color: TEXT }}>{item.name}</h3>
-              <span className="shrink-0 text-xs italic" style={{ color: '#a8a29e' }}>&#11088; {item.stars?.toLocaleString()}</span>
-            </div>
-            {item.language && <span className="text-xs" style={{ color: GOLD }}>{item.language}</span>}
-            {item.description && <p className="mt-0.5 text-sm" style={{ color: '#44403c' }} dangerouslySetInnerHTML={{ __html: md(item.description) }} />}
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  if (section.type === 'custom') {
-    return (
-      <div className="space-y-4">
-        {((content as CustomContent).items || []).map((item: any) => (
-          <div key={item.id} className="border-l-2 pl-4" style={{ borderColor: GOLD }}>
-            <div className="flex items-baseline justify-between">
-              <h3 className="text-sm font-bold" style={{ color: TEXT }}>{item.title}</h3>
-              {item.date && <span className="shrink-0 text-xs italic" style={{ color: GOLD }}>{item.date}</span>}
-            </div>
-            {item.subtitle && <p className="text-sm" style={{ color: GOLD }}>{item.subtitle}</p>}
-            {item.description && <p className="mt-0.5 text-sm" style={{ color: '#44403c' }} dangerouslySetInnerHTML={{ __html: md(item.description) }} />}
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  if (section.type === 'qr_codes') {
-    return <QrCodesPreview items={(content as any).items || []} />;
-  }
-
-  if (content?.items) {
-    return (
-      <div className="space-y-2">
-        {content.items.map((item: any) => (
-          <div key={item.id}>
-            <span className="text-sm font-bold" style={{ color: TEXT }}>{item.name || item.title || item.language}</span>
-            {item.description && <p className="text-sm" style={{ color: '#44403c' }} dangerouslySetInnerHTML={{ __html: md(item.description) }} />}
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  return null;
+  )
 }

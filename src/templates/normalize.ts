@@ -1,4 +1,4 @@
-﻿import { formatDate } from '@/utils'
+import { formatDate } from '@/utils'
 import type {
   Resume,
   Experience,
@@ -63,8 +63,6 @@ function normalizePersonalInfo(pi: Resume['personalInfo']): NormalizedPersonalIn
     maritalStatus: trim(pi.maritalStatus),
     yearsOfExperience: trim(pi.yearsOfExperience),
     educationLevel: trim(pi.educationLevel),
-    hasContact: Boolean(email || phone || location),
-    hasLinks: Boolean(website || linkedin || github),
   }
 }
 

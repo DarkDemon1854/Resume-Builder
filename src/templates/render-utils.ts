@@ -1,12 +1,6 @@
-﻿import type { ResumeSection, SkillsContent, SummaryContent } from './resume-types'
-
-export function md(text: unknown): string {
-  if (text == null) return ''
-  const s0 =
-    typeof text === 'string' ? text
-    : typeof text === 'number' || typeof text === 'boolean' ? String(text)
-    : ''
-  let s = s0
+export function md(text: string): string {
+  if (!text) return ''
+  let s = text
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
@@ -23,7 +17,7 @@ export function md(text: unknown): string {
       if (inList) { html += '</ul>'; inList = false }
       continue
     }
-    const lm = line.match(/^[-â€“â€¢]\s+(.*)/)
+    const lm = line.match(/^[-–•]\s+(.*)/)
     if (lm) {
       if (!inList) { html += '<ul style="margin:2px 0;padding-left:1.5em;list-style-type:disc">'; inList = true }
       html += `<li>${lm[1]}</li>`
@@ -36,29 +30,3 @@ export function md(text: unknown): string {
   return html
 }
 
-export function degreeField(degree: string, field: string | undefined): string {
-  if (!field) return degree
-  return `${degree} - ${field}`
-}
-
-export function isSectionEmpty(section: ResumeSection): boolean {
-  const content = section.content as unknown as Record<string, unknown>
-
-  if (section.type === 'summary') {
-    return !(content as unknown as SummaryContent).text
-  }
-
-  if (section.type === 'skills') {
-    const skillsContent = content as unknown as SkillsContent
-    const cats = skillsContent.categories
-    if (!cats || cats.length === 0) return true
-    return cats.every(cat => !cat.skills || cat.skills.length === 0)
-  }
-
-  if ('items' in content) {
-    const items = content.items
-    return !Array.isArray(items) || items.length === 0
-  }
-
-  return false
-}

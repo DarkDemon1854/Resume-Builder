@@ -1,310 +1,131 @@
-﻿import type {
-  Resume,
-  PersonalInfoContent,
-  SummaryContent,
-  WorkExperienceContent,
-  EducationContent,
-  SkillsContent,
-  ProjectsContent,
-  CertificationsContent,
-  LanguagesContent,
-  CustomContent,
-  GitHubContent,
-} from './resume-types';
-import { AvatarImage } from './AvatarImage';
-import { degreeField, isSectionEmpty, md } from './render-utils';
-import { QrCodesPreview } from './QrCodesPreview';
+import type { TemplateProps } from './types'
+import { AvatarImage } from './AvatarImage'
+import { md } from './render-utils'
 
-const PRIMARY = '#4c1d95';
-const ACCENT = '#c084fc';
-const WASH = '#f5f3ff';
-const TEXT = '#6b7280';
-const TEXT_DARK = '#374151';
+const PRIMARY = '#4c1d95'
+const ACCENT = '#c084fc'
+const WASH = '#f5f3ff'
+const TEXT_DARK = '#374151'
 
-export function WatercolorTemplate({ resume }: { resume: Resume }) {
-  const personalInfo = resume.sections.find((s) => s.type === 'personal_info');
-  const pi = (personalInfo?.content || {}) as PersonalInfoContent;
+export function WatercolorTemplate({ resume }: TemplateProps) {
+  const pi = resume.personalInfo
+  const vis = new Set(resume.visibleSections)
 
-  const contacts = [pi.age, pi.politicalStatus, pi.gender, pi.ethnicity, pi.hometown, pi.maritalStatus, pi.yearsOfExperience, pi.educationLevel, pi.email, pi.phone, pi.wechat, pi.location, pi.website].filter(Boolean);
+  const SH = ({ title }: { title: string }) => (
+    <div className="mb-3">
+      <h2 className="text-xs font-bold uppercase tracking-[0.25em]" style={{ color: PRIMARY }}>{title}</h2>
+      <div className="mt-1 h-0.5 w-16 rounded-full" style={{ background: `linear-gradient(90deg, ${PRIMARY}, ${ACCENT})` }} />
+    </div>
+  )
 
   return (
-    <div className="mx-auto max-w-[210mm] bg-white shadow-lg" style={{ fontFamily: 'Inter, sans-serif' }}>
-      {}
-      <div className="mb-6 rounded-2xl px-6 py-5" style={{ backgroundColor: WASH }}>
-        <div className="flex items-center gap-5">
-          {pi.avatar && (
-            <AvatarImage
-              src={pi.avatar}
-              avatarStyle={resume.themeConfig?.avatarStyle}
-              size={80}
-              className="border-2 border-white"
-              wrapperClassName="shrink-0 p-1"
-              wrapperStyle={{ background: `linear-gradient(135deg, ${ACCENT}, ${PRIMARY})` }}
-            />
-          )}
-          <div>
-            <h1 className="text-3xl font-bold" style={{ color: PRIMARY }}>
-              {pi.fullName || 'Your Name'}
-            </h1>
-            {pi.jobTitle && (
-              <p className="mt-1 text-sm font-medium" style={{ color: ACCENT }}>{pi.jobTitle}</p>
-            )}
-            {contacts.length > 0 && (
-              <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs" style={{ color: TEXT }}>
-                {contacts.map((c, i) => (
-                  <span key={i} className="flex items-center gap-1.5">
-                    {c}
-                    {i < contacts.length - 1 && <span style={{ color: ACCENT }}>{'/'}</span>}
-                  </span>
-                ))}
-              </div>
-            )}
+    <div className="mx-auto max-w-[210mm] shadow-lg" style={{ fontFamily: 'Inter, sans-serif', backgroundColor: WASH }}>
+      <div className="relative overflow-hidden px-8 py-10 text-center">
+        <div className="absolute inset-0 opacity-20" style={{ background: `radial-gradient(ellipse at top left, ${ACCENT}, transparent 60%), radial-gradient(ellipse at bottom right, ${PRIMARY}, transparent 60%)` }} />
+        <div className="relative">
+          {pi.avatar && <AvatarImage src={pi.avatar} avatarStyle="circle" size={88} className="mx-auto mb-4" wrapperStyle={{ border: `3px solid ${ACCENT}`, boxShadow: `0 4px 24px ${ACCENT}40` }} />}
+          <h1 className="text-3xl font-extrabold tracking-tight" style={{ color: PRIMARY }}>{pi.fullName || 'Your Name'}</h1>
+          {pi.title && <p className="mt-1 text-sm font-medium" style={{ color: ACCENT }}>{pi.title}</p>}
+          <div className="mx-auto mt-4 flex max-w-lg flex-wrap justify-center gap-x-4 gap-y-1 text-xs" style={{ color: '#6d28d9' }}>
+            {[pi.age, pi.gender, pi.hometown, pi.maritalStatus, pi.yearsOfExperience, pi.educationLevel, pi.email, pi.phone, pi.wechat, pi.location, pi.website, pi.linkedin].filter(Boolean).map((c, i) => <span key={i}>{c}</span>)}
           </div>
         </div>
       </div>
-
-      {}
-      {resume.sections
-        .filter((s) => s.visible && s.type !== 'personal_info' && !isSectionEmpty(s))
-        .map((section) => (
-          <div key={section.id} className="mb-5" data-section>
-            <div className="mb-2 flex items-center gap-2">
-              <div className="h-6 w-1.5 rounded-full" style={{ background: `linear-gradient(to bottom, ${ACCENT}, ${PRIMARY})` }} />
-              <h2 className="text-sm font-bold uppercase tracking-wider" style={{ color: PRIMARY }}>
-                {section.title}
-              </h2>
-            </div>
-            <WatercolorSectionContent section={section} lang={resume.language} />
+      <div className="px-8 pb-8">
+        {vis.has('summary') && pi.summary && (
+          <div className="mb-6 rounded-2xl bg-white/70 p-5 shadow-sm backdrop-blur-sm" data-section>
+            <SH title="About" />
+            <p className="text-sm leading-relaxed" style={{ color: TEXT_DARK }} dangerouslySetInnerHTML={{ __html: md(pi.summary) }} />
           </div>
-        ))}
-    </div>
-  );
-}
-
-function WatercolorSectionContent({ section, lang }: { section: any; lang?: string }) {
-  const content = section.content;
-  if (!content) return null;
-
-  if (section.type === 'summary') {
-    return (
-      <div className="rounded-xl p-4" style={{ backgroundColor: WASH }}>
-        <p className="text-sm leading-relaxed" style={{ color: TEXT_DARK }} dangerouslySetInnerHTML={{ __html: md((content as SummaryContent).text) }} />
-      </div>
-    );
-  }
-
-  if (section.type === 'work_experience') {
-    const items = (content as WorkExperienceContent).items || [];
-    return (
-      <div className="space-y-4">
-        {items.map((item: any) => (
-          <div key={item.id} className="rounded-xl p-4" style={{ backgroundColor: `${WASH}` }}>
-            <div className="flex items-baseline justify-between">
-              <h3 className="text-sm font-bold" style={{ color: PRIMARY }}>{item.position}</h3>
-              <span className="shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-semibold text-white" style={{ background: `linear-gradient(135deg, ${ACCENT}, ${PRIMARY})` }}>
-                {item.startDate} - {item.endDate || (item.current ? (lang === 'zh' ? 'è‡³ä»Š' : 'Present') : '')}
-              </span>
-            </div>
-            {item.company && <p className="text-sm font-medium" style={{ color: ACCENT }}>{item.company}</p>}
-            {item.description && <p className="mt-1 text-sm" style={{ color: TEXT }} dangerouslySetInnerHTML={{ __html: md(item.description) }} />}
-            {item.technologies?.length > 0 && (
-              <div className="mt-2 flex flex-wrap gap-1">
-                {item.technologies.map((t: string, i: number) => (
-                  <span key={i} className="rounded-full px-2 py-0.5 text-[10px] font-medium text-white" style={{ background: `linear-gradient(135deg, ${ACCENT}, ${PRIMARY})` }}>
-                    {t}
-                  </span>
-                ))}
-              </div>
-            )}
-            {item.highlights?.length > 0 && (
-              <ul className="mt-1.5 space-y-0.5">
-                {item.highlights.map((h: string, i: number) => (
-                  <li key={i} className="flex items-start gap-2 text-sm" style={{ color: TEXT }}>
-                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: ACCENT }} />
-                    <span dangerouslySetInnerHTML={{ __html: md(h) }} />
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  if (section.type === 'education') {
-    const items = (content as EducationContent).items || [];
-    return (
-      <div className="space-y-3">
-        {items.map((item: any) => (
-          <div key={item.id} className="rounded-xl p-4" style={{ backgroundColor: WASH }}>
-            <div className="flex items-baseline justify-between">
-              <h3 className="text-sm font-bold" style={{ color: PRIMARY }}>{item.institution}</h3>
-              <span className="text-xs" style={{ color: TEXT }}>{item.startDate} - {item.endDate || (lang === 'zh' ? 'è‡³ä»Š' : 'Present')}</span>
-            </div>
-            <p className="text-sm" style={{ color: TEXT_DARK }}>{degreeField(item.degree, item.field)}</p>
-            {item.gpa && <p className="text-xs" style={{ color: ACCENT }}>GPA: {item.gpa}</p>}
-            {item.highlights?.length > 0 && (
-              <ul className="mt-1 space-y-0.5">
-                {item.highlights.map((h: string, i: number) => (
-                  <li key={i} className="flex items-start gap-2 text-sm" style={{ color: TEXT }}>
-                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: ACCENT }} />
-                    <span dangerouslySetInnerHTML={{ __html: md(h) }} />
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  if (section.type === 'skills') {
-    const categories = (content as SkillsContent).categories || [];
-    return (
-      <div className="space-y-3">
-        {categories.map((cat: any) => (
-          <div key={cat.id}>
-            <p className="mb-1.5 text-xs font-bold uppercase tracking-wider" style={{ color: ACCENT }}>{cat.name}</p>
-            <div className="flex flex-wrap gap-1.5">
-              {(cat.skills || []).map((skill: string, i: number) => (
-                <span
-                  key={i}
-                  className="rounded-full px-2.5 py-0.5 text-xs font-medium"
-                  style={{ backgroundColor: WASH, color: PRIMARY, border: `1px solid ${ACCENT}40` }}
-                >
-                  {skill}
-                </span>
+        )}
+        {vis.has('experience') && resume.experience.length > 0 && (
+          <div className="mb-6 rounded-2xl bg-white/70 p-5 shadow-sm backdrop-blur-sm" data-section>
+            <SH title="Experience" />
+            <div className="space-y-4">
+              {resume.experience.map(exp => (
+                <div key={exp.id} className="border-l-2 pl-4" style={{ borderColor: ACCENT }}>
+                  <div className="flex items-baseline justify-between">
+                    <span className="text-sm font-bold" style={{ color: PRIMARY }}>{exp.position}</span>
+                    <span className="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold text-white" style={{ background: `linear-gradient(90deg, ${PRIMARY}, ${ACCENT})` }}>{exp.period}</span>
+                  </div>
+                  {exp.company && <p className="text-sm" style={{ color: ACCENT }}>{exp.company}{exp.location ? `, ${exp.location}` : ''}</p>}
+                  {exp.description && <p className="mt-1 text-sm" style={{ color: TEXT_DARK }} dangerouslySetInnerHTML={{ __html: md(exp.description) }} />}
+                  {exp.highlights.length > 0 && <ul className="mt-1 list-disc pl-4">{exp.highlights.map((h, i) => <li key={i} className="text-sm" style={{ color: TEXT_DARK }} dangerouslySetInnerHTML={{ __html: md(h) }} />)}</ul>}
+                </div>
               ))}
             </div>
           </div>
-        ))}
-      </div>
-    );
-  }
-
-  if (section.type === 'projects') {
-    const items = (content as ProjectsContent).items || [];
-    return (
-      <div className="space-y-3">
-        {items.map((item: any) => (
-          <div key={item.id} className="rounded-xl p-4" style={{ backgroundColor: WASH }}>
-            <div className="flex items-baseline justify-between">
-              <h3 className="text-sm font-bold" style={{ color: PRIMARY }}>{item.name}</h3>
-              {item.startDate && (
-                <span className="text-xs" style={{ color: TEXT }}>
-                  {item.startDate} - {item.endDate || (lang === 'zh' ? 'è‡³ä»Š' : 'Present')}
-                </span>
-              )}
+        )}
+        {vis.has('education') && resume.education.length > 0 && (
+          <div className="mb-6 rounded-2xl bg-white/70 p-5 shadow-sm" data-section>
+            <SH title="Education" />
+            <div className="space-y-3">
+              {resume.education.map(edu => (
+                <div key={edu.id}>
+                  <div className="flex items-baseline justify-between">
+                    <span className="text-sm font-bold" style={{ color: PRIMARY }}>{edu.institution}</span>
+                    <span className="text-xs" style={{ color: ACCENT }}>{edu.period}</span>
+                  </div>
+                  <p className="text-sm" style={{ color: TEXT_DARK }}>{edu.degree}</p>
+                  {edu.gpa && <p className="text-xs" style={{ color: ACCENT }}>GPA: {edu.gpa}</p>}
+                </div>
+              ))}
             </div>
-            {item.description && <p className="mt-0.5 text-sm" style={{ color: TEXT }} dangerouslySetInnerHTML={{ __html: md(item.description) }} />}
-            {item.technologies?.length > 0 && (
-              <div className="mt-2 flex flex-wrap gap-1">
-                {item.technologies.map((t: string, i: number) => (
-                  <span key={i} className="rounded-full px-2 py-0.5 text-[10px] font-medium text-white" style={{ background: `linear-gradient(135deg, ${ACCENT}, ${PRIMARY})` }}>
-                    {t}
-                  </span>
-                ))}
-              </div>
-            )}
-            {item.highlights?.length > 0 && (
-              <ul className="mt-1.5 space-y-0.5">
-                {item.highlights.map((h: string, i: number) => (
-                  <li key={i} className="flex items-start gap-2 text-sm" style={{ color: TEXT }}>
-                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: ACCENT }} />
-                    <span dangerouslySetInnerHTML={{ __html: md(h) }} />
-                  </li>
-                ))}
-              </ul>
-            )}
           </div>
-        ))}
-      </div>
-    );
-  }
-
-  if (section.type === 'certifications') {
-    const items = (content as CertificationsContent).items || [];
-    return (
-      <div className="flex flex-wrap gap-2">
-        {items.map((item: any) => (
-          <div key={item.id} className="rounded-xl px-4 py-2" style={{ backgroundColor: WASH, border: `1px solid ${ACCENT}30` }}>
-            <p className="text-sm font-bold" style={{ color: PRIMARY }}>{item.name}</p>
-            {(item.issuer || item.date) && <p className="text-xs" style={{ color: TEXT }}>{item.issuer}{item.issuer && item.date ? ' | ' : ''}{item.date}</p>}
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  if (section.type === 'languages') {
-    const items = (content as LanguagesContent).items || [];
-    return (
-      <div className="flex flex-wrap gap-3">
-        {items.map((item: any) => (
-          <div key={item.id} className="flex items-center gap-2 rounded-full px-4 py-1.5" style={{ backgroundColor: WASH, border: `1px solid ${ACCENT}30` }}>
-            <span className="h-2 w-2 rounded-full" style={{ background: `linear-gradient(135deg, ${ACCENT}, ${PRIMARY})` }} />
-            <span className="text-sm font-medium" style={{ color: PRIMARY }}>{item.language}</span>
-            <span className="text-xs" style={{ color: TEXT }}>{item.proficiency}</span>
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  if (section.type === 'custom') {
-    const items = (content as CustomContent).items || [];
-    return (
-      <div className="space-y-3">
-        {items.map((item: any) => (
-          <div key={item.id} className="rounded-xl p-4" style={{ backgroundColor: WASH }}>
-            <div className="flex items-baseline justify-between">
-              <h3 className="text-sm font-bold" style={{ color: PRIMARY }}>{item.title}</h3>
-              {item.date && <span className="text-xs" style={{ color: TEXT }}>{item.date}</span>}
+        )}
+        {vis.has('skills') && resume.skills.length > 0 && (
+          <div className="mb-6 rounded-2xl bg-white/70 p-5 shadow-sm" data-section>
+            <SH title="Skills" />
+            <div className="space-y-2">
+              {resume.skills.map(skill => (
+                <div key={skill.id}>
+                  <p className="mb-1 text-xs font-bold" style={{ color: PRIMARY }}>{skill.category}</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {skill.items.map((item, i) => <span key={i} className="rounded-full px-2.5 py-0.5 text-xs font-medium text-white" style={{ background: `linear-gradient(90deg, ${PRIMARY}, ${ACCENT})` }}>{item}</span>)}
+                  </div>
+                </div>
+              ))}
             </div>
-            {item.subtitle && <p className="text-sm" style={{ color: ACCENT }}>{item.subtitle}</p>}
-            {item.description && <p className="mt-1 text-sm" style={{ color: TEXT }} dangerouslySetInnerHTML={{ __html: md(item.description) }} />}
           </div>
-        ))}
-      </div>
-    );
-  }
-
-  if (section.type === 'github') {
-    const items = (content as GitHubContent).items || [];
-    return (
-      <div className="space-y-3">
-        {items.map((item: any) => (
-          <div key={item.id} className="rounded-xl p-3" style={{ backgroundColor: WASH }}>
-            <div className="flex items-baseline justify-between">
-              <span className="text-sm font-bold" style={{ color: PRIMARY }}>{item.name}</span>
-              <span className="shrink-0 text-xs" style={{ color: TEXT }}>{item.stars?.toLocaleString()}</span>
+        )}
+        {vis.has('certifications') && resume.certifications.length > 0 && (
+          <div className="mb-6 rounded-2xl bg-white/70 p-5 shadow-sm" data-section>
+            <SH title="Certifications" />
+            <div className="space-y-1.5">
+              {resume.certifications.map(cert => (
+                <div key={cert.id} className="flex items-baseline justify-between text-sm">
+                  <div><span className="font-bold" style={{ color: PRIMARY }}>{cert.name}</span>{cert.issuer && <span style={{ color: TEXT_DARK }}> — {cert.issuer}</span>}</div>
+                  {cert.date && <span className="text-xs" style={{ color: ACCENT }}>{cert.date}</span>}
+                </div>
+              ))}
             </div>
-            {item.language && <span className="text-xs" style={{ color: ACCENT }}>{item.language}</span>}
-            {item.description && <p className="mt-1 text-sm" style={{ color: TEXT }} dangerouslySetInnerHTML={{ __html: md(item.description) }} />}
           </div>
-        ))}
-      </div>
-    );
-  }
-
-  if (section.type === 'qr_codes') {
-    return <QrCodesPreview items={(content as any).items || []} />;
-  }
-
-  if (content?.items) {
-    return (
-      <div className="space-y-2">
-        {content.items.map((item: any) => (
-          <div key={item.id} className="rounded-xl p-3" style={{ backgroundColor: WASH }}>
-            <span className="text-sm font-medium" style={{ color: PRIMARY }}>{item.name || item.title || item.language}</span>
-            {item.description && <p className="text-sm" style={{ color: TEXT }} dangerouslySetInnerHTML={{ __html: md(item.description) }} />}
+        )}
+        {vis.has('languages') && resume.languages.length > 0 && (
+          <div className="mb-6 rounded-2xl bg-white/70 p-5 shadow-sm" data-section>
+            <SH title="Languages" />
+            <div className="flex flex-wrap gap-2">
+              {resume.languages.map(lang => <div key={lang.id} className="flex items-center gap-1.5 rounded-full px-3 py-1 text-sm" style={{ border: `1px solid ${ACCENT}40` }}><span className="h-2 w-2 rounded-full" style={{ background: `linear-gradient(90deg, ${PRIMARY}, ${ACCENT})` }} /><span className="font-medium" style={{ color: PRIMARY }}>{lang.language}</span><span style={{ color: TEXT_DARK }}>{lang.proficiency}</span></div>)}
+            </div>
           </div>
-        ))}
+        )}
+        {vis.has('awards') && resume.awards.length > 0 && (
+          <div className="mb-6 rounded-2xl bg-white/70 p-5 shadow-sm" data-section>
+            <SH title="Awards" />
+            <div className="space-y-2">
+              {resume.awards.map(award => (
+                <div key={award.id}>
+                  <div className="flex items-baseline justify-between">
+                    <div><span className="text-sm font-bold" style={{ color: PRIMARY }}>{award.title}</span>{award.issuer && <span className="text-sm" style={{ color: TEXT_DARK }}> — {award.issuer}</span>}</div>
+                    {award.date && <span className="text-xs" style={{ color: ACCENT }}>{award.date}</span>}
+                  </div>
+                  {award.description && <p className="mt-0.5 text-sm" style={{ color: TEXT_DARK }} dangerouslySetInnerHTML={{ __html: md(award.description) }} />}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
-    );
-  }
-
-  return null;
+    </div>
+  )
 }

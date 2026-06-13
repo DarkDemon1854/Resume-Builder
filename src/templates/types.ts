@@ -1,4 +1,4 @@
-﻿import type { ComponentType } from 'react'
+import type { ComponentType } from 'react'
 import type { TemplateId } from '@/constants'
 
 export type NormalizedPersonalInfo = {
@@ -19,8 +19,6 @@ export type NormalizedPersonalInfo = {
   maritalStatus: string
   yearsOfExperience: string
   educationLevel: string
-  hasContact: boolean
-  hasLinks: boolean
 }
 
 export type NormalizedExperience = {

@@ -1,266 +1,135 @@
-﻿import type {
-  Resume,
-  PersonalInfoContent,
-  SummaryContent,
-  WorkExperienceContent,
-  EducationContent,
-  SkillsContent,
-  ProjectsContent,
-  CertificationsContent,
-  LanguagesContent,
-  CustomContent,
-  GitHubContent,
-} from './resume-types';
-import { AvatarImage } from './AvatarImage';
-import { degreeField, isSectionEmpty, md } from './render-utils';
-import { QrCodesPreview } from './QrCodesPreview';
+import type { TemplateProps } from './types'
+import { AvatarImage } from './AvatarImage'
+import { md } from './render-utils'
 
-const RED = '#dc2626';
-const TEXT = '#18181b';
+const RED = '#dc2626'
+const TEXT = '#18181b'
 
-export function SwissTemplate({ resume }: { resume: Resume }) {
-  const personalInfo = resume.sections.find((s) => s.type === 'personal_info');
-  const pi = (personalInfo?.content || {}) as PersonalInfoContent;
+export function SwissTemplate({ resume }: TemplateProps) {
+  const pi = resume.personalInfo
+  const vis = new Set(resume.visibleSections)
+
+  const SH = ({ title }: { title: string }) => (
+    <div className="mb-3 flex items-center gap-4">
+      <div className="h-0.5 w-8 shrink-0" style={{ backgroundColor: RED }} />
+      <h2 className="text-xs font-bold uppercase tracking-[0.3em]" style={{ color: TEXT }}>{title}</h2>
+    </div>
+  )
 
   return (
-    <div className="mx-auto max-w-[210mm] bg-white shadow-lg" style={{ fontFamily: 'Helvetica Neue, Helvetica, Arial, sans-serif' }}>
-      {}
-      <div className="mb-8">
-        <div className="flex items-start gap-6">
-          {pi.avatar && (
-            <AvatarImage src={pi.avatar} size={64} avatarStyle={resume.themeConfig?.avatarStyle} className="shrink-0" />
-          )}
-          <div className="flex-1">
-            <h1 className="text-3xl font-bold uppercase tracking-tight" style={{ color: TEXT }}>{pi.fullName || 'Your Name'}</h1>
-            {pi.jobTitle && <p className="mt-1 text-sm font-light uppercase tracking-[0.15em]" style={{ color: '#52525b' }}>{pi.jobTitle}</p>}
+    <div className="mx-auto max-w-[210mm] bg-white shadow-lg" style={{ fontFamily: 'Inter, sans-serif' }}>
+      <div className="px-10 py-8" style={{ borderLeft: `8px solid ${RED}` }}>
+        <div className="flex items-center gap-5">
+          {pi.avatar && <AvatarImage src={pi.avatar} avatarStyle="circle" size={72} className="shrink-0" />}
+          <div>
+            <h1 className="text-4xl font-black tracking-[-0.02em] uppercase" style={{ color: TEXT }}>{pi.fullName || 'Your Name'}</h1>
+            {pi.title && <p className="mt-1 text-sm font-medium uppercase tracking-[0.25em]" style={{ color: RED }}>{pi.title}</p>}
+            <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs" style={{ color: '#71717a' }}>
+              {[pi.age, pi.gender, pi.hometown, pi.maritalStatus, pi.yearsOfExperience, pi.educationLevel, pi.email, pi.phone, pi.wechat, pi.location, pi.website, pi.linkedin, pi.github].filter(Boolean).map((c, i) => <span key={i}>{c}</span>)}
+            </div>
           </div>
-        </div>
-        {}
-        <div className="mt-4 flex flex-wrap gap-x-6 gap-y-1 border-t border-black pt-3 text-xs" style={{ color: TEXT }}>
-          {pi.age && <span>{pi.age}</span>}
-          {pi.politicalStatus && <span>{pi.politicalStatus}</span>}
-          {pi.gender && <span>{pi.gender}</span>}
-          {pi.ethnicity && <span>{pi.ethnicity}</span>}
-          {pi.hometown && <span>{pi.hometown}</span>}
-          {pi.maritalStatus && <span>{pi.maritalStatus}</span>}
-          {pi.yearsOfExperience && <span>{pi.yearsOfExperience}</span>}
-          {pi.educationLevel && <span>{pi.educationLevel}</span>}
-          {pi.email && <span>{pi.email}</span>}
-          {pi.phone && <span>{pi.phone}</span>}
-          {pi.wechat && <span>{pi.wechat}</span>}
-          {pi.location && <span>{pi.location}</span>}
-          {pi.website && <span>{pi.website}</span>}
         </div>
       </div>
-
-      {}
-      {resume.sections
-        .filter((s) => s.visible && s.type !== 'personal_info' && !isSectionEmpty(s))
-        .map((section) => (
-          <div key={section.id} className="mb-6" data-section>
-            {}
-            <div className="mb-3 flex items-center gap-2 border-b border-zinc-200 pb-2">
-              <span className="inline-block h-2.5 w-2.5 shrink-0" style={{ backgroundColor: RED }} />
-              <h2 className="text-xs font-bold uppercase tracking-[0.2em]" style={{ color: TEXT }}>{section.title}</h2>
+      <div className="px-10 pb-8 pt-6" style={{ borderLeft: `8px solid ${RED}` }}>
+        {vis.has('summary') && pi.summary && (
+          <div className="mb-6" data-section><SH title="Profile" /><p className="text-sm leading-relaxed" style={{ color: '#374151' }} dangerouslySetInnerHTML={{ __html: md(pi.summary) }} /></div>
+        )}
+        {vis.has('experience') && resume.experience.length > 0 && (
+          <div className="mb-6" data-section>
+            <SH title="Experience" />
+            <div className="space-y-4">
+              {resume.experience.map(exp => (
+                <div key={exp.id} className="grid grid-cols-[7rem_1fr] gap-4">
+                  <div className="text-right">
+                    <p className="text-xs font-bold" style={{ color: RED }}>{exp.period}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold" style={{ color: TEXT }}>{exp.position}</p>
+                    {exp.company && <p className="text-sm text-zinc-500">{exp.company}{exp.location ? `, ${exp.location}` : ''}</p>}
+                    {exp.description && <p className="mt-1 text-sm text-zinc-600" dangerouslySetInnerHTML={{ __html: md(exp.description) }} />}
+                    {exp.highlights.length > 0 && <ul className="mt-1 list-disc pl-4">{exp.highlights.map((h, i) => <li key={i} className="text-sm text-zinc-600" dangerouslySetInnerHTML={{ __html: md(h) }} />)}</ul>}
+                  </div>
+                </div>
+              ))}
             </div>
-            <SwissSectionContent section={section} lang={resume.language} />
           </div>
-        ))}
+        )}
+        {vis.has('education') && resume.education.length > 0 && (
+          <div className="mb-6" data-section>
+            <SH title="Education" />
+            <div className="space-y-3">
+              {resume.education.map(edu => (
+                <div key={edu.id} className="grid grid-cols-[7rem_1fr] gap-4">
+                  <div className="text-right">
+                    <p className="text-xs font-bold" style={{ color: RED }}>{edu.period}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold" style={{ color: TEXT }}>{edu.institution}</p>
+                    <p className="text-sm text-zinc-500">{edu.degree}</p>
+                    {edu.gpa && <p className="text-xs text-zinc-500">GPA: {edu.gpa}</p>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        {vis.has('skills') && resume.skills.length > 0 && (
+          <div className="mb-6" data-section>
+            <SH title="Skills" />
+            <div className="space-y-1">
+              {resume.skills.map(skill => (
+                <div key={skill.id} className="grid grid-cols-[7rem_1fr] gap-4 text-sm">
+                  <div className="text-right font-bold" style={{ color: TEXT }}>{skill.category}</div>
+                  <div className="text-zinc-600">{skill.items.join(', ')}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        {vis.has('certifications') && resume.certifications.length > 0 && (
+          <div className="mb-6" data-section>
+            <SH title="Certifications" />
+            <div className="space-y-1.5">
+              {resume.certifications.map(cert => (
+                <div key={cert.id} className="grid grid-cols-[7rem_1fr] gap-4 text-sm">
+                  <div className="text-right text-xs font-bold" style={{ color: RED }}>{cert.date}</div>
+                  <div><span className="font-bold" style={{ color: TEXT }}>{cert.name}</span>{cert.issuer && <span className="text-zinc-500"> — {cert.issuer}</span>}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        {vis.has('languages') && resume.languages.length > 0 && (
+          <div className="mb-6" data-section>
+            <SH title="Languages" />
+            <div className="space-y-1">
+              {resume.languages.map(lang => (
+                <div key={lang.id} className="grid grid-cols-[7rem_1fr] gap-4 text-sm">
+                  <div className="text-right font-bold" style={{ color: TEXT }}>{lang.language}</div>
+                  <div className="text-zinc-500">{lang.proficiency}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        {vis.has('awards') && resume.awards.length > 0 && (
+          <div className="mb-6" data-section>
+            <SH title="Awards" />
+            <div className="space-y-2">
+              {resume.awards.map(award => (
+                <div key={award.id} className="grid grid-cols-[7rem_1fr] gap-4">
+                  <div className="text-right text-xs font-bold" style={{ color: RED }}>{award.date}</div>
+                  <div>
+                    <p className="text-sm font-bold" style={{ color: TEXT }}>{award.title}</p>
+                    {award.issuer && <p className="text-sm text-zinc-500">{award.issuer}</p>}
+                    {award.description && <p className="mt-0.5 text-sm text-zinc-600" dangerouslySetInnerHTML={{ __html: md(award.description) }} />}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
-  );
-}
-
-function SwissSectionContent({ section, lang }: { section: any; lang?: string }) {
-  const content = section.content;
-  if (!content) return null;
-
-  if (section.type === 'summary') {
-    return <p className="text-sm leading-relaxed" style={{ color: '#3f3f46' }} dangerouslySetInnerHTML={{ __html: md((content as SummaryContent).text) }} />;
-  }
-
-  if (section.type === 'work_experience') {
-    return (
-      <div className="space-y-4">
-        {((content as WorkExperienceContent).items || []).map((item: any) => (
-          <div key={item.id} className="grid grid-cols-[140px_1fr] gap-4">
-            <div className="text-xs" style={{ color: '#52525b' }}>
-              <span>{item.startDate} &ndash; {item.endDate || (item.current ? (lang === 'zh' ? 'è‡³ä»Š' : 'Present') : '')}</span>
-            </div>
-            <div>
-              <h3 className="text-sm font-bold" style={{ color: TEXT }}>{item.position}</h3>
-              {item.company && <p className="text-sm" style={{ color: RED }}>{item.company}</p>}
-              {item.description && <p className="mt-1 text-sm" style={{ color: '#3f3f46' }} dangerouslySetInnerHTML={{ __html: md(item.description) }} />}
-              {item.technologies?.length > 0 && (
-                <p className="mt-0.5 text-xs" style={{ color: '#52525b' }}>{lang === 'zh' ? 'æŠ€æœ¯æ ˆ' : 'Tech'}: {item.technologies.join(', ')}</p>
-              )}
-              {item.highlights?.length > 0 && (
-                <ul className="mt-1 list-none space-y-0.5">
-                  {item.highlights.map((h: string, i: number) => (
-                    <li key={i} className="flex items-start gap-2 text-sm" style={{ color: '#3f3f46' }}>
-                      <span className="mt-1.5 inline-block h-1 w-1 shrink-0" style={{ backgroundColor: RED }} />
-                      <span dangerouslySetInnerHTML={{ __html: md(h) }} />
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  if (section.type === 'education') {
-    return (
-      <div className="space-y-3">
-        {((content as EducationContent).items || []).map((item: any) => (
-          <div key={item.id} className="grid grid-cols-[140px_1fr] gap-4">
-            <span className="text-xs" style={{ color: '#52525b' }}>{item.startDate} &ndash; {item.endDate || (lang === 'zh' ? 'è‡³ä»Š' : 'Present')}</span>
-            <div>
-              <h3 className="text-sm font-bold" style={{ color: TEXT }}>{degreeField(item.degree, item.field)}</h3>
-              {item.institution && <p className="text-sm" style={{ color: RED }}>{item.institution}</p>}
-              {item.gpa && <p className="text-xs" style={{ color: '#52525b' }}>GPA: {item.gpa}</p>}
-              {item.highlights?.length > 0 && (
-                <ul className="mt-1 list-none space-y-0.5">
-                  {item.highlights.map((h: string, i: number) => (
-                    <li key={i} className="flex items-start gap-2 text-sm" style={{ color: '#3f3f46' }}>
-                      <span className="mt-1.5 inline-block h-1 w-1 shrink-0" style={{ backgroundColor: RED }} />
-                      <span dangerouslySetInnerHTML={{ __html: md(h) }} />
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  if (section.type === 'skills') {
-    return (
-      <div className="space-y-1.5">
-        {((content as SkillsContent).categories || []).map((cat: any) => (
-          <div key={cat.id} className="grid grid-cols-[140px_1fr] gap-4 text-sm">
-            <span className="font-bold" style={{ color: TEXT }}>{cat.name}</span>
-            <span style={{ color: '#3f3f46' }}>{(cat.skills || []).join(' / ')}</span>
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  if (section.type === 'projects') {
-    return (
-      <div className="space-y-3">
-        {((content as ProjectsContent).items || []).map((item: any) => (
-          <div key={item.id} className="grid grid-cols-[140px_1fr] gap-4">
-            {item.startDate ? (
-              <span className="text-xs" style={{ color: '#52525b' }}>{item.startDate} {'\u2013'} {item.endDate || (lang === 'zh' ? 'è‡³ä»Š' : 'Present')}</span>
-            ) : <span />}
-            <div>
-              <h3 className="text-sm font-bold" style={{ color: TEXT }}>{item.name}</h3>
-              {item.description && <p className="mt-0.5 text-sm" style={{ color: '#3f3f46' }} dangerouslySetInnerHTML={{ __html: md(item.description) }} />}
-              {item.technologies?.length > 0 && (
-                <p className="mt-0.5 text-xs" style={{ color: '#52525b' }}>{lang === 'zh' ? 'æŠ€æœ¯æ ˆ' : 'Tech'}: {item.technologies.join(', ')}</p>
-              )}
-              {item.highlights?.length > 0 && (
-                <ul className="mt-1 list-none space-y-0.5">
-                  {item.highlights.map((h: string, i: number) => (
-                    <li key={i} className="flex items-start gap-2 text-sm" style={{ color: '#3f3f46' }}>
-                      <span className="mt-1.5 inline-block h-1 w-1 shrink-0" style={{ backgroundColor: RED }} />
-                      <span dangerouslySetInnerHTML={{ __html: md(h) }} />
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  if (section.type === 'certifications') {
-    return (
-      <div className="space-y-1.5">
-        {((content as CertificationsContent).items || []).map((item: any) => (
-          <div key={item.id} className="grid grid-cols-[140px_1fr] gap-4">
-            <span className="text-xs" style={{ color: '#52525b' }}>{item.date || '\u00A0'}</span>
-            <div>
-              <span className="text-sm font-bold" style={{ color: TEXT }}>{item.name}</span>
-              {item.issuer && <span className="text-sm" style={{ color: '#3f3f46' }}> &mdash; {item.issuer}</span>}
-            </div>
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  if (section.type === 'languages') {
-    return (
-      <div className="flex flex-wrap gap-x-6 gap-y-1.5">
-        {((content as LanguagesContent).items || []).map((item: any) => (
-          <div key={item.id} className="text-sm">
-            <span className="font-bold" style={{ color: TEXT }}>{item.language}</span>
-            <span style={{ color: '#52525b' }}> &mdash; {item.proficiency}</span>
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  if (section.type === 'github') {
-    const items = (content as GitHubContent).items || [];
-    return (
-      <div className="space-y-3">
-        {items.map((item: any) => (
-          <div key={item.id} className="grid grid-cols-[140px_1fr] gap-4">
-            <span className="text-xs" style={{ color: '#52525b' }}>&#11088; {item.stars?.toLocaleString()}</span>
-            <div>
-              <h3 className="text-sm font-bold" style={{ color: TEXT }}>{item.name}</h3>
-              {item.language && <span className="text-xs" style={{ color: RED }}>{item.language}</span>}
-              {item.description && <p className="mt-0.5 text-sm" style={{ color: '#3f3f46' }} dangerouslySetInnerHTML={{ __html: md(item.description) }} />}
-            </div>
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  if (section.type === 'custom') {
-    return (
-      <div className="space-y-3">
-        {((content as CustomContent).items || []).map((item: any) => (
-          <div key={item.id} className="grid grid-cols-[140px_1fr] gap-4">
-            {item.date ? <span className="text-xs" style={{ color: '#52525b' }}>{item.date}</span> : <span />}
-            <div>
-              <h3 className="text-sm font-bold" style={{ color: TEXT }}>{item.title}</h3>
-              {item.subtitle && <p className="text-sm" style={{ color: RED }}>{item.subtitle}</p>}
-              {item.description && <p className="mt-0.5 text-sm" style={{ color: '#3f3f46' }} dangerouslySetInnerHTML={{ __html: md(item.description) }} />}
-            </div>
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  if (section.type === 'qr_codes') {
-    return <QrCodesPreview items={(content as any).items || []} />;
-  }
-
-  if (content?.items) {
-    return (
-      <div className="space-y-2">
-        {content.items.map((item: any) => (
-          <div key={item.id}>
-            <span className="text-sm font-bold" style={{ color: TEXT }}>{item.name || item.title || item.language}</span>
-            {item.description && <p className="text-sm" style={{ color: '#3f3f46' }} dangerouslySetInnerHTML={{ __html: md(item.description) }} />}
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  return null;
+  )
 }

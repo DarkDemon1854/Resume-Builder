@@ -35,31 +35,5 @@ export default tseslint.config(
       'no-var': 'error',
     },
   },
-  {
-    files: [
-      'src/templates/*.tsx',
-      'src/templates/render-utils.ts',
-      'src/templates/resume-types.ts',
-      'src/templates/adapter.ts',
-      'src/templates/AvatarImage.tsx',
-      'src/templates/QrCodesPreview.tsx',
-    ],
-    rules: {
-      '@typescript-eslint/no-explicit-any': 'off',
-      '@typescript-eslint/no-unsafe-member-access': 'off',
-      '@typescript-eslint/no-unsafe-assignment': 'off',
-      '@typescript-eslint/no-unsafe-call': 'off',
-      '@typescript-eslint/no-unsafe-return': 'off',
-      '@typescript-eslint/no-unsafe-argument': 'off',
-      '@typescript-eslint/no-unnecessary-condition': 'off',
-      '@typescript-eslint/no-unnecessary-type-assertion': 'off',
-      '@typescript-eslint/no-unnecessary-template-expression': 'off',
-      '@typescript-eslint/restrict-template-expressions': 'off',
-      '@typescript-eslint/restrict-plus-operands': 'off',
-      '@typescript-eslint/no-unused-vars': 'off',
-      '@typescript-eslint/ban-ts-comment': 'off',
-      'no-console': 'off',
-    },
-  },
   prettierConfig
 )

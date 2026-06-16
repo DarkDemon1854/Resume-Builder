@@ -24,7 +24,7 @@ export function ZigzagTemplate({ resume }: TemplateProps) {
       <div className="relative overflow-hidden" style={{ backgroundColor: PRIMARY }}>
         <div className="absolute inset-0">
           {[0, 1, 2, 3, 4].map(i => (
-            <div key={i} className="absolute h-full w-1 opacity-10" style={{ left: `${20 * i}%`, backgroundColor: ACCENT }} />
+            <div key={i} className="absolute h-full w-1 opacity-10" style={{ left: `${String(20 * i)}%`, backgroundColor: ACCENT }} />
           ))}
         </div>
         <div className="relative flex items-center gap-5 px-8 py-7 text-white">

@@ -1,5 +1,4 @@
 import type { TemplateId } from '@/constants'
-import { TEMPLATE_IDS } from '@/constants'
 import type { TemplateConfig } from './types'
 
 import { AcademicTemplate } from './academic'
@@ -115,11 +114,3 @@ export const TEMPLATE_REGISTRY: Record<TemplateId, TemplateConfig> = {
   watercolor:   { meta: meta('watercolor',   'Watercolor',   'Soft watercolor-inspired artistic layout.',                    ['Two-column', 'Artistic', 'Soft'],            '#0891b2'), component: WatercolorTemplate },
   zigzag:       { meta: meta('zigzag',       'Zigzag',       'Dynamic zigzag pattern with bold contrasts.',                  ['Two-column', 'Dynamic', 'Bold'],             '#dc2626'), component: ZigzagTemplate },
 } as const satisfies Record<TemplateId, TemplateConfig>
-
-export function getTemplate(id: TemplateId): TemplateConfig {
-  return TEMPLATE_REGISTRY[id]
-}
-
-export function listTemplates(): TemplateConfig[] {
-  return TEMPLATE_IDS.map(id => TEMPLATE_REGISTRY[id])
-}

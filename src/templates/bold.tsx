@@ -97,7 +97,7 @@ export function BoldTemplate({ resume }: TemplateProps) {
             <div className="flex flex-wrap gap-2">
               {resume.skills.flatMap(skill =>
                 skill.items.map((item, i) => (
-                  <span key={`${skill.id}-${i}`} className="border-2 border-black px-3 py-1 text-xs font-bold text-black">{item}</span>
+                  <span key={`${skill.id}-${String(i)}`} className="border-2 border-black px-3 py-1 text-xs font-bold text-black">{item}</span>
                 ))
               )}
             </div>

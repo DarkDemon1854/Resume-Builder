@@ -1,5 +1,6 @@
 import { useCallback } from 'react'
 import Input from '@/components/Input'
+import MonthYearPicker from '@/components/MonthYearPicker'
 import SectionWrapper from '@/components/resume/SectionWrapper'
 import DynamicList from '@/components/resume/DynamicList'
 import { useResume } from '@/hooks/useResume'
@@ -96,11 +97,10 @@ function CertificationEntry({ entry, onChange, onBlur, getError }: EntryProps) {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <Input
+        <MonthYearPicker
           label="Issue Date"
-          type="month"
           value={entry.date}
-          onChange={e => { onChange('date', e.target.value) }}
+          onChange={val => { onChange('date', val) }}
           onBlur={() => { onBlur('date') }}
         />
         <Input

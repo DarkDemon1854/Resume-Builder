@@ -102,7 +102,7 @@ export function CleanTemplate({ resume }: TemplateProps) {
           <div className="flex flex-wrap gap-2">
             {resume.skills.flatMap(skill =>
               skill.items.map((item, i) => (
-                <span key={`${skill.id}-${i}`} className="rounded-full border px-3 py-0.5 text-xs font-medium" style={{ borderColor: TEAL, color: TEAL }}>{item}</span>
+                <span key={`${skill.id}-${String(i)}`} className="rounded-full border px-3 py-0.5 text-xs font-medium" style={{ borderColor: TEAL, color: TEAL }}>{item}</span>
               ))
             )}
           </div>

@@ -1,6 +1,7 @@
 import { useCallback } from 'react'
 import Input from '@/components/Input'
 import TextArea from '@/components/TextArea'
+import MonthYearPicker from '@/components/MonthYearPicker'
 import SectionWrapper from '@/components/resume/SectionWrapper'
 import DynamicList from '@/components/resume/DynamicList'
 import TagInput from '@/components/resume/TagInput'
@@ -103,20 +104,18 @@ function ExperienceEntry({ entry, onChange, onBlur, getError }: EntryProps) {
         placeholder="San Francisco, CA (or Remote)"
       />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <Input
+      <div className="grid grid-cols-1 gap-4">
+        <MonthYearPicker
           label="Start Date"
-          type="month"
           value={entry.startDate}
-          onChange={e => { onChange('startDate', e.target.value) }}
+          onChange={val => { onChange('startDate', val) }}
           onBlur={() => { onBlur('startDate') }}
           error={getError('startDate')}
         />
-        <Input
+        <MonthYearPicker
           label="End Date"
-          type="month"
           value={entry.endDate}
-          onChange={e => { onChange('endDate', e.target.value) }}
+          onChange={val => { onChange('endDate', val) }}
           onBlur={() => { onBlur('endDate') }}
           error={getError('endDate')}
           disabled={entry.current}

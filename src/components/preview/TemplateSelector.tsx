@@ -12,7 +12,7 @@ const TAG_FILTERS = ['All', 'Single-column', 'Two-column', 'ATS', 'Creative', 'M
 
 export default function TemplateSelector({ resumeId, activeTemplateId }: Props) {
   const updateResume = useResumeStore(state => state.updateResume)
-  const [activeTag, setActiveTag] = useState<string>('All')
+  const [activeTag, setActiveTag] = useState<typeof TAG_FILTERS[number]>('All')
 
   const allTemplates = useMemo(() => listTemplates(), [])
 

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback, useReducer } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { usePreview } from '@/hooks/usePreview'
 import PreviewSectionRenderer from './PreviewSectionRenderer'
 import PreviewEmptyState from './PreviewEmptyState'
@@ -17,7 +17,6 @@ export default function ResumePreview({ resumeId }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
   const wrapperRef = useRef<HTMLDivElement>(null)
   const [scale, setScale] = useState(0.5)
-  const [, forceUpdate] = useReducer((x: number) => x + 1, 0)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const userZoomed = useRef(false)
 
@@ -63,7 +62,6 @@ export default function ResumePreview({ resumeId }: Props) {
   const resetZoom = useCallback(() => {
     userZoomed.current = false
     fitToContainer()
-    forceUpdate()
   }, [fitToContainer])
 
   const toggleFullscreen = useCallback(() => {

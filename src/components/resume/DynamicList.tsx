@@ -141,11 +141,11 @@ export default function DynamicList<T extends { id: string }>({
             role="listitem"
             aria-roledescription="reorderable item"
             aria-label={`Item ${String(index + 1)} of ${String(ordered.length)}`}
-            draggable
-            onDragStart={e => { handleDragStart(e, item.id) }}
-            onDragOver={e => { handleDragOver(e, item.id) }}
-            onDrop={handleDrop}
-            onDragEnd={handleDragEnd}
+            draggable={!isPendingDelete}
+            onDragStart={isPendingDelete ? undefined : e => { handleDragStart(e, item.id) }}
+            onDragOver={isPendingDelete ? undefined : e => { handleDragOver(e, item.id) }}
+            onDrop={isPendingDelete ? undefined : handleDrop}
+            onDragEnd={isPendingDelete ? undefined : handleDragEnd}
             className={[
               'group relative rounded-lg border transition-all duration-150',
               isDragging

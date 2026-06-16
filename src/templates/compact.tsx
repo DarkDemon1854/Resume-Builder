@@ -2,7 +2,6 @@ import type { TemplateProps } from './types'
 import { AvatarImage } from './AvatarImage'
 import { md } from './render-utils'
 
-const LEFT_SECTIONS = new Set(['skills', 'languages', 'certifications', 'awards'])
 
 export function CompactTemplate({ resume }: TemplateProps) {
   const pi = resume.personalInfo

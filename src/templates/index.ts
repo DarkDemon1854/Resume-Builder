@@ -1,4 +1,5 @@
-export { TEMPLATE_REGISTRY, getTemplate, listTemplates } from './registry'
+export { TEMPLATE_REGISTRY } from './registry'
+export { getTemplate, listTemplates } from './registry-utils'
 export type {
   NormalizedResume,
   NormalizedPersonalInfo,

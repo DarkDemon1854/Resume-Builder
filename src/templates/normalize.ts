@@ -34,7 +34,7 @@ function buildPeriod(
   if (!startFmt && !endFmt) return ''
   if (!endFmt) return startFmt
   if (!startFmt) return endFmt
-  return `${startFmt} â€“ ${endFmt}`
+  return `${startFmt} – ${endFmt}`
 }
 
 function normalizePersonalInfo(pi: Resume['personalInfo']): NormalizedPersonalInfo {

@@ -9,8 +9,6 @@ export function SidebarTemplate({ resume }: TemplateProps) {
   const pi = resume.personalInfo
   const vis = resume.visibleSections
 
-  const sidebarSections = ['skills', 'languages', 'certifications', 'awards']
-  const mainSections = ['summary', 'experience', 'education', 'projects']
 
   const SidebarHeader = ({ title }: { title: string }) => (
     <h2 className="mb-2 border-b border-white/20 pb-1 text-xs font-bold uppercase tracking-wider text-white">{title}</h2>

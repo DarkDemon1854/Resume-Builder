@@ -4,7 +4,6 @@ import { md } from './render-utils'
 
 const CORAL = '#ff6b6b'
 const NEUTRAL = '#1a1a1a'
-const GRAY = '#374151'
 
 export function DesignerTemplate({ resume }: TemplateProps) {
   const pi = resume.personalInfo

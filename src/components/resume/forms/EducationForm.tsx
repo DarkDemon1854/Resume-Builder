@@ -86,7 +86,7 @@ function EducationEntry({ entry, onChange, onBlur, getError }: EntryProps) {
         placeholder="Massachusetts Institute of Technology"
       />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-4">
         <Input
           label="Degree"
           value={entry.degree}
@@ -105,7 +105,7 @@ function EducationEntry({ entry, onChange, onBlur, getError }: EntryProps) {
         />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-4">
         <Input
           label="Location"
           value={entry.location}
@@ -122,23 +122,21 @@ function EducationEntry({ entry, onChange, onBlur, getError }: EntryProps) {
         />
       </div>
 
-      <div className="grid grid-cols-1 gap-4">
-        <MonthYearPicker
-          label="Start Date"
-          value={entry.startDate}
-          onChange={val => { onChange('startDate', val) }}
-          onBlur={() => { onBlur('startDate') }}
-          error={getError('startDate')}
-        />
-        <MonthYearPicker
-          label="End Date"
-          value={entry.endDate}
-          onChange={val => { onChange('endDate', val) }}
-          onBlur={() => { onBlur('endDate') }}
-          error={getError('endDate')}
-          disabled={entry.current}
-        />
-      </div>
+      <MonthYearPicker
+        label="Start Date"
+        value={entry.startDate}
+        onChange={val => { onChange('startDate', val) }}
+        onBlur={() => { onBlur('startDate') }}
+        error={getError('startDate')}
+      />
+      <MonthYearPicker
+        label="End Date"
+        value={entry.endDate}
+        onChange={val => { onChange('endDate', val) }}
+        onBlur={() => { onBlur('endDate') }}
+        error={getError('endDate')}
+        disabled={entry.current}
+      />
 
       <label className="flex items-center gap-2.5 cursor-pointer select-none w-fit">
         <input

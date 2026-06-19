@@ -36,22 +36,22 @@ export default function MonthYearPicker({ label, value, onChange, onBlur, error,
   }
 
   const selectClass = [
-    'flex-1 rounded-lg border bg-neutral-900 px-3 py-2 text-sm text-neutral-100',
+    'rounded-lg border bg-neutral-900 px-3 py-2 text-sm text-neutral-100',
     'focus:outline-none focus:border-primary-500/70 focus:ring-2 focus:ring-primary-500/20',
     'transition-colors disabled:opacity-50 disabled:cursor-not-allowed',
     error ? 'border-danger-500/60' : 'border-neutral-700',
   ].join(' ')
 
   return (
-    <div className="flex flex-col gap-1.5">
+    <div className="flex flex-col gap-1.5 min-w-0">
       <span className="label-base">{label}</span>
-      <div className="flex gap-2">
+      <div className="flex gap-2 min-w-0 overflow-hidden">
         <select
           value={selectedMonth}
           onChange={handleMonth}
           onBlur={onBlur}
           disabled={disabled}
-          className={selectClass}
+          className={`${selectClass} flex-1 min-w-0`}
           aria-label={`${label} month`}
         >
           <option value="">Month</option>
@@ -65,8 +65,7 @@ export default function MonthYearPicker({ label, value, onChange, onBlur, error,
           onChange={handleYear}
           onBlur={onBlur}
           disabled={disabled}
-          className={selectClass}
-          style={{ maxWidth: '7rem' }}
+          className={`${selectClass} w-24 shrink-0`}
           aria-label={`${label} year`}
         >
           <option value="">Year</option>

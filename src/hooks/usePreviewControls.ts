@@ -73,24 +73,8 @@ export function usePreviewControls(
     return () => { document.removeEventListener('fullscreenchange', onFsChange) }
   }, [fitToContainer])
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      const tag = (e.target as HTMLElement).tagName
-      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return
-      if ((e.ctrlKey || e.metaKey) && e.key === '=') {
-        e.preventDefault()
-        zoomIn()
-      } else if ((e.ctrlKey || e.metaKey) && e.key === '-') {
-        e.preventDefault()
-        zoomOut()
-      } else if ((e.ctrlKey || e.metaKey) && e.key === '0') {
-        e.preventDefault()
-        resetZoom()
-      }
-    }
-    window.addEventListener('keydown', onKey)
-    return () => { window.removeEventListener('keydown', onKey) }
-  }, [zoomIn, zoomOut, resetZoom])
+  // NOTE: Ctrl+/- is intentionally NOT intercepted here so the browser's
+  // native zoom works normally. Use the toolbar buttons to control preview scale.
 
   return {
     scale,

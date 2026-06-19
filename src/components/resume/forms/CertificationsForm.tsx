@@ -77,7 +77,7 @@ type EntryProps = {
 function CertificationEntry({ entry, onChange, onBlur, getError }: EntryProps) {
   return (
     <div className="flex flex-col gap-4">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-4">
         <Input
           label="Certification Name"
           value={entry.name}
@@ -96,21 +96,20 @@ function CertificationEntry({ entry, onChange, onBlur, getError }: EntryProps) {
         />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <MonthYearPicker
-          label="Issue Date"
-          value={entry.date}
-          onChange={val => { onChange('date', val) }}
-          onBlur={() => { onBlur('date') }}
-        />
-        <Input
-          label="Credential ID (optional)"
-          value={entry.credentialId}
-          onChange={e => { onChange('credentialId', e.target.value) }}
-          onBlur={() => { onBlur('credentialId') }}
-          placeholder="ABC-123-XYZ"
-        />
-      </div>
+      <MonthYearPicker
+        label="Issue Date"
+        value={entry.date}
+        onChange={val => { onChange('date', val) }}
+        onBlur={() => { onBlur('date') }}
+      />
+
+      <Input
+        label="Credential ID (optional)"
+        value={entry.credentialId}
+        onChange={e => { onChange('credentialId', e.target.value) }}
+        onBlur={() => { onBlur('credentialId') }}
+        placeholder="ABC-123-XYZ"
+      />
 
       <Input
         label="Credential URL (optional)"

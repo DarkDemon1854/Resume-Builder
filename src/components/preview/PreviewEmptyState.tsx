@@ -1,15 +1,15 @@
 export default function PreviewEmptyState() {
   return (
-    <div className="flex flex-col items-center justify-center gap-5 py-20 px-6 text-center">
-      <div className="w-16 h-16 rounded-2xl bg-neutral-100 flex items-center justify-center">
+    <div className="preview-empty-state">
+      <div className="preview-empty-icon-wrap" aria-hidden="true">
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          width="28"
-          height="28"
+          width="32"
+          height="32"
           viewBox="0 0 24 24"
           fill="none"
-          stroke="#a3a3a3"
-          strokeWidth="1.5"
+          stroke="currentColor"
+          strokeWidth="1.25"
           strokeLinecap="round"
           strokeLinejoin="round"
         >
@@ -20,11 +20,20 @@ export default function PreviewEmptyState() {
           <polyline points="10 9 9 9 8 9" />
         </svg>
       </div>
-      <div>
-        <p className="text-sm font-medium text-zinc-400">No content yet</p>
-        <p className="mt-1 text-xs text-zinc-500">
-          Start filling in the sections on the left to see your resume preview here.
+
+      <div className="preview-empty-text">
+        <p className="preview-empty-headline">Your resume preview will appear here</p>
+        <p className="preview-empty-sub">
+          Start filling in sections on the left to see a live preview of your resume.
         </p>
+      </div>
+
+      <div className="preview-empty-hints" aria-hidden="true">
+        <span className="preview-empty-hint-pill">Name</span>
+        <span className="preview-empty-hint-arrow">→</span>
+        <span className="preview-empty-hint-pill">Experience</span>
+        <span className="preview-empty-hint-arrow">→</span>
+        <span className="preview-empty-hint-pill">Skills</span>
       </div>
     </div>
   )

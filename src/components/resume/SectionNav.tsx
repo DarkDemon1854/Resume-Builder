@@ -17,11 +17,6 @@ type Props = {
   validation: Record<ResumeSectionKey, SectionStatus>
 }
 
-type DragState = {
-  dragKey: ResumeSectionKey
-  overKey: ResumeSectionKey | null
-}
-
 export default function SectionNav({ sections, activeSection, onSelect, onReorder, validation }: Props) {
   const isMobile = useIsMobile()
 
@@ -96,47 +91,57 @@ function MobileNav({ sections, activeSection, onSelect, validation }: MobileNavP
 type DesktopNavProps = Props
 
 function DesktopNav({ sections, activeSection, onSelect, onReorder, validation }: DesktopNavProps) {
-  const [drag, setDrag] = useState<DragState | null>(null)
+  const [dragKey, setDragKey] = useState<ResumeSectionKey | null>(null)
+  const [overKey, setOverKey] = useState<ResumeSectionKey | null>(null)
+  const lastOverKey = useRef<ResumeSectionKey | null>(null)
 
-  const ordered = drag
-    ? (() => {
-        const arr = [...sections]
-        const fromIdx = arr.indexOf(drag.dragKey)
-        const toIdx = drag.overKey ? arr.indexOf(drag.overKey) : fromIdx
-        if (fromIdx === -1 || toIdx === -1 || fromIdx === toIdx) return arr
-        const [moved] = arr.splice(fromIdx, 1)
-        arr.splice(toIdx, 0, moved)
-        return arr
-      })()
-    : sections
-
-  const handleDragStart = useCallback((_e: DragEvent, key: ResumeSectionKey) => {
-    setDrag({ dragKey: key, overKey: null })
+  const handleDragStart = useCallback((e: DragEvent, key: ResumeSectionKey) => {
+    e.dataTransfer.effectAllowed = 'move'
+    setDragKey(key)
+    setOverKey(null)
+    lastOverKey.current = null
   }, [])
 
   const handleDragOver = useCallback((e: DragEvent, key: ResumeSectionKey) => {
     e.preventDefault()
-    setDrag((prev) => (prev ? { ...prev, overKey: key } : null))
+    e.dataTransfer.dropEffect = 'move'
+    if (lastOverKey.current === key) return
+    lastOverKey.current = key
+    setOverKey(key)
   }, [])
 
-  const handleDrop = useCallback(
-    (e: DragEvent) => {
-      e.preventDefault()
-      if (!drag) return
-      const arr = [...sections]
-      const fromIdx = arr.indexOf(drag.dragKey)
-      const toIdx = drag.overKey ? arr.indexOf(drag.overKey) : fromIdx
-      if (fromIdx !== -1 && toIdx !== -1 && fromIdx !== toIdx) {
-        const [moved] = arr.splice(fromIdx, 1)
-        arr.splice(toIdx, 0, moved)
-        onReorder(arr)
-      }
-      setDrag(null)
-    },
-    [drag, sections, onReorder]
-  )
+  const handleDragLeave = useCallback((e: DragEvent, key: ResumeSectionKey) => {
+    const related = e.relatedTarget as HTMLElement | null
+    if (related?.closest(`[data-section="${key}"]`)) return
+    if (lastOverKey.current === key) {
+      lastOverKey.current = null
+      setOverKey(null)
+    }
+  }, [])
 
-  const handleDragEnd = useCallback(() => { setDrag(null) }, [])
+  const handleDrop = useCallback((e: DragEvent) => {
+    e.preventDefault()
+    if (dragKey && overKey && dragKey !== overKey) {
+      const arr = [...sections]
+      const fromIdx = arr.indexOf(dragKey)
+      const toIdx = arr.indexOf(overKey)
+      if (fromIdx !== -1 && toIdx !== -1) {
+        const item = arr[fromIdx]
+        const next = arr.filter((_, i) => i !== fromIdx)
+        next.splice(toIdx, 0, item)
+        onReorder(next)
+      }
+    }
+    setDragKey(null)
+    setOverKey(null)
+    lastOverKey.current = null
+  }, [dragKey, overKey, sections, onReorder])
+
+  const handleDragEnd = useCallback(() => {
+    setDragKey(null)
+    setOverKey(null)
+    lastOverKey.current = null
+  }, [])
 
   const moveUp = useCallback(
     (idx: number) => {
@@ -158,6 +163,8 @@ function DesktopNav({ sections, activeSection, onSelect, onReorder, validation }
     [sections, onReorder]
   )
 
+  const isDraggingAny = dragKey !== null
+
   return (
     <nav
       className="w-64 shrink-0 border-r border-neutral-800/60 bg-neutral-900/50 overflow-y-auto h-full"
@@ -168,27 +175,34 @@ function DesktopNav({ sections, activeSection, onSelect, onReorder, validation }
           Sections
         </p>
 
-        {ordered.map((key, idx) => {
+        {sections.map((key, idx) => {
           const meta = SECTION_META[key]
           const status = validation[key]
           const isActive = key === activeSection
-          const isDragging = drag?.dragKey === key
+          const isDragging = key === dragKey
+          const isOver = key === overKey && key !== dragKey
 
           return (
             <button
               type="button"
               key={key}
+              data-section={key}
               draggable
               onDragStart={(e) => { handleDragStart(e, key) }}
               onDragOver={(e) => { handleDragOver(e, key) }}
+              onDragLeave={(e) => { handleDragLeave(e, key) }}
               onDrop={handleDrop}
               onDragEnd={handleDragEnd}
               className={[
-                'group relative flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-all duration-200 select-none',
-                isDragging ? 'opacity-40' : '',
-                isActive
+                'group relative flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer select-none',
+                isDraggingAny ? 'transition-none' : 'transition-colors duration-150',
+                isDragging ? 'opacity-30' : '',
+                isOver ? 'ring-2 ring-primary-500/60 bg-primary-500/8' : '',
+                isActive && !isDragging
                   ? 'bg-primary-500/12 text-primary-300'
-                  : 'text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/50',
+                  : !isDragging && !isOver
+                  ? 'text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/50'
+                  : 'text-neutral-400',
               ]
                 .filter(Boolean)
                 .join(' ')}
@@ -204,7 +218,7 @@ function DesktopNav({ sections, activeSection, onSelect, onReorder, validation }
               }}
               aria-current={isActive ? 'true' : undefined}
             >
-              {isActive && (
+              {isActive && !isDragging && (
                 <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-primary-500" />
               )}
 
@@ -286,5 +300,3 @@ function RewindIcon() {
     </svg>
   )
 }
-
-

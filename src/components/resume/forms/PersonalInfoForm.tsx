@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import Input from '@/components/Input'
-import TextArea from '@/components/TextArea'
 import SectionWrapper from '@/components/resume/SectionWrapper'
 import { useResume } from '@/hooks/useResume'
 import { validatePersonalInfo } from '@/validation/resumeValidation'
@@ -79,7 +78,7 @@ export default function PersonalInfoForm({ resumeId }: Props) {
   return (
     <SectionWrapper
       title="Personal Information"
-      description="Your basic contact details and professional summary"
+      description="Your basic contact details and online presence"
       icon={<UserIcon />}
     >
       <div className="flex flex-col gap-5">
@@ -162,15 +161,6 @@ export default function PersonalInfoForm({ resumeId }: Props) {
           onBlur={() => { blur('github'); }}
           error={touched.github ? getError(errors, 'github') : undefined}
           placeholder="https://github.com/janedoe"
-        />
-
-        <TextArea
-          label="Professional Summary"
-          value={draft.summary}
-          onChange={e => { change('summary', e.target.value); }}
-          onBlur={() => { blur('summary'); }}
-          placeholder="Write a concise 2–4 sentence summary of your professional background and goals..."
-          rows={4}
         />
       </div>
     </SectionWrapper>

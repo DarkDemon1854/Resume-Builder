@@ -151,7 +151,7 @@ export default function ResumePreview({ resumeId }: Props) {
               style={{ width: scaledWidth, height: scaledHeight }}
             >
               <div
-                className={`preview-a4${transitionState === 'leaving' ? ' is-leaving' : ''}${transitionState === 'entering' ? ' is-entering' : ''}`}
+                className={`preview-a4 preview-doc-transition${transitionState === 'leaving' ? ' is-leaving' : ''}${transitionState === 'entering' ? ' is-entering' : ''}`}
                 style={{
                   width: A4_WIDTH_PX,
                   minHeight: A4_MIN_HEIGHT_PX,

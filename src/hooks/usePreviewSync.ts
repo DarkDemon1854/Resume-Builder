@@ -5,13 +5,8 @@ export function usePreviewSync(resumeId: string) {
     state => state.resumes.find(r => r.id === resumeId) ?? null
   )
 
-  const templateId = useResumeStore(
-    state => state.resumes.find(r => r.id === resumeId)?.templateId ?? null
-  )
-
-  const updatedAt = useResumeStore(
-    state => state.resumes.find(r => r.id === resumeId)?.updatedAt ?? null
-  )
+  const templateId = resume?.templateId ?? null
+  const updatedAt = resume?.updatedAt ?? null
 
   return { resume, templateId, updatedAt }
 }

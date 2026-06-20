@@ -5,7 +5,6 @@ export const MOCK_RESUME: Resume = {
   title: 'Mock Resume',
   templateId: 'modern',
   sections: ['personalInfo', 'summary', 'experience', 'education', 'skills'],
-  visibleSections: ['summary', 'experience', 'education', 'skills', 'projects', 'certifications', 'languages', 'awards'],
   personalInfo: {
     fullName: 'Jane Doe',
     title: 'Software Engineer',

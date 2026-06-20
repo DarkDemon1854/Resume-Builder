@@ -264,7 +264,7 @@ export default function DashboardPage() {
                   >
                     <div className="w-full h-32 rounded bg-neutral-900 overflow-hidden relative border border-neutral-700/50 group-hover:border-neutral-500/50 transition-colors">
                       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[794px] h-[1123px] origin-top scale-[0.15] pointer-events-none bg-white">
-                        <TemplateComponent resume={{ ...MOCK_RESUME, templateId: tpl }} />
+                        <TemplateComponent resume={normalizeResume(MOCK_RESUME)} />
                       </div>
                     </div>
                     <span className="mt-1">{tpl}</span>

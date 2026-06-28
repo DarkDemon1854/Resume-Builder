@@ -66,7 +66,8 @@ function ResumeCard({ resume, onDuplicate, onDelete }: ResumeCardProps) {
     year: 'numeric',
   }).format(new Date(resume.updatedAt))
 
-  const TemplateComponent = getTemplate(resume.templateId as TemplateId).component
+  const config = getTemplate(resume.templateId as TemplateId) || getTemplate('modern')
+  const TemplateComponent = config.component
   const normalizedResume = normalizeResume(resume)
 
   return (

@@ -21,6 +21,12 @@ export function usePreviewControls(
   const [scale, setScale] = useState<number>(0.5)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const userZoomed = useRef(false)
+  const scaleRef = useRef(scale)
+  const pinchOrigin = useRef<{ dist: number; scale: number } | null>(null)
+
+  useEffect(() => {
+    scaleRef.current = scale
+  }, [scale])
 
   const fitToContainer = useCallback(() => {
     const el = containerRef.current
@@ -73,8 +79,80 @@ export function usePreviewControls(
     return () => { document.removeEventListener('fullscreenchange', onFsChange) }
   }, [fitToContainer])
 
-  // NOTE: Ctrl+/- is intentionally NOT intercepted here so the browser's
-  // native zoom works normally. Use the toolbar buttons to control preview scale.
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+
+    let hovering = false
+
+    const onMouseEnter = () => { hovering = true }
+    const onMouseLeave = () => { hovering = false }
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (!hovering || (!e.ctrlKey && !e.metaKey)) return
+      if (e.key === '=' || e.key === '+') {
+        e.preventDefault()
+        zoomIn()
+      } else if (e.key === '-') {
+        e.preventDefault()
+        zoomOut()
+      } else if (e.key === '0') {
+        e.preventDefault()
+        resetZoom()
+      }
+    }
+
+    el.addEventListener('mouseenter', onMouseEnter)
+    el.addEventListener('mouseleave', onMouseLeave)
+    window.addEventListener('keydown', onKeyDown)
+
+    return () => {
+      el.removeEventListener('mouseenter', onMouseEnter)
+      el.removeEventListener('mouseleave', onMouseLeave)
+      window.removeEventListener('keydown', onKeyDown)
+    }
+  }, [containerRef, zoomIn, zoomOut, resetZoom])
+
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+
+    const pinchDist = (t: TouchList): number => {
+      const dx = t[0].clientX - t[1].clientX
+      const dy = t[0].clientY - t[1].clientY
+      return Math.hypot(dx, dy)
+    }
+
+    const onTouchStart = (e: TouchEvent) => {
+      if (e.touches.length !== 2) return
+      pinchOrigin.current = { dist: pinchDist(e.touches), scale: scaleRef.current }
+    }
+
+    const onTouchMove = (e: TouchEvent) => {
+      if (e.touches.length !== 2 || !pinchOrigin.current) return
+      e.preventDefault()
+      const ratio = pinchDist(e.touches) / pinchOrigin.current.dist
+      const next = parseFloat(
+        Math.max(MIN_SCALE, Math.min(pinchOrigin.current.scale * ratio, MAX_SCALE)).toFixed(2)
+      )
+      userZoomed.current = true
+      setScale(next)
+    }
+
+    const onTouchEnd = () => {
+      pinchOrigin.current = null
+    }
+
+    el.addEventListener('touchstart', onTouchStart, { passive: true })
+    el.addEventListener('touchmove', onTouchMove, { passive: false })
+    el.addEventListener('touchend', onTouchEnd)
+
+    return () => {
+      el.removeEventListener('touchstart', onTouchStart)
+      el.removeEventListener('touchmove', onTouchMove)
+      el.removeEventListener('touchend', onTouchEnd)
+    }
+  }, [containerRef])
 
   return {
     scale,
@@ -86,6 +164,7 @@ export function usePreviewControls(
     zoomIn,
     zoomOut,
     resetZoom,
+    fitToScreen: resetZoom,
     setViewportMode,
     fitToContainer,
   }

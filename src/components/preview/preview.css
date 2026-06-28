@@ -22,6 +22,7 @@
   flex-shrink: 0;
   min-height: 40px;
   z-index: 10;
+  position: relative;
 }
 
 .preview-toolbar-left {
@@ -354,24 +355,69 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 20px;
-  padding: 60px 32px;
+  gap: 24px;
+  padding: 48px 32px;
   text-align: center;
   min-height: 420px;
   background: #fafafa;
   font-family: system-ui, -apple-system, sans-serif;
 }
 
-.preview-empty-icon-wrap {
-  width: 60px;
-  height: 60px;
-  border-radius: 14px;
-  background: #f0f0f0;
-  border: 1px solid #e5e5e5;
+.preview-empty-illustration {
+  width: 80px;
+}
+
+.preview-empty-doc {
+  width: 80px;
+  background: #fff;
+  border: 1.5px solid #e8e8e8;
+  border-radius: 6px;
+  padding: 12px 10px;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #b0b0b0;
+  flex-direction: column;
+  gap: 5px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.preview-empty-spacer {
+  height: 4px;
+}
+
+.preview-empty-line {
+  height: 5px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #eaeaea, #f4f4f4, #eaeaea);
+  background-size: 200% 100%;
+  animation: empty-shimmer 1.8s ease-in-out infinite;
+}
+
+.preview-empty-line--title {
+  width: 60%;
+  height: 7px;
+  background: linear-gradient(90deg, #d4d8fa, #e8eafb, #d4d8fa);
+  background-size: 200% 100%;
+  animation: empty-shimmer 1.8s ease-in-out infinite;
+  animation-delay: 0s;
+}
+
+.preview-empty-line--wide {
+  width: 90%;
+  animation-delay: 0.1s;
+}
+
+.preview-empty-line--medium {
+  width: 68%;
+  animation-delay: 0.2s;
+}
+
+.preview-empty-line--narrow {
+  width: 44%;
+  animation-delay: 0.3s;
+}
+
+@keyframes empty-shimmer {
+  0%   { background-position: 200% center; }
+  100% { background-position: -200% center; }
 }
 
 .preview-empty-text {
@@ -415,6 +461,41 @@
 .preview-empty-hint-arrow {
   font-size: 11px;
   color: #c0c0c0;
+}
+
+/* ─── Canvas Progress Bar ─────────────────────────── */
+
+.preview-canvas-progress {
+  position: sticky;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, #6271f4 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: progress-sweep 1s ease-in-out infinite;
+  z-index: 10;
+  pointer-events: none;
+  flex-shrink: 0;
+}
+
+@keyframes progress-sweep {
+  from { background-position: 200% 0; }
+  to   { background-position: -100% 0; }
+}
+
+/* ─── Template Error ──────────────────────────────── */
+
+.preview-template-error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  min-height: 200px;
+  background: #fafafa;
+  color: #a0a0a0;
+  font-size: 11.5px;
+  font-family: system-ui, -apple-system, sans-serif;
 }
 
 /* ─── Fullscreen overrides ────────────────────────── */

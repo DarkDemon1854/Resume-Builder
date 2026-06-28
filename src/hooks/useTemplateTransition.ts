@@ -2,34 +2,55 @@ import { useState, useEffect, useRef } from 'react'
 
 type TransitionState = 'idle' | 'leaving' | 'entering'
 
+const LEAVE_DURATION_MS = 180
+const ENTER_DURATION_MS = 250
+
 export function useTemplateTransition(templateId: string) {
   const [transitionState, setTransitionState] = useState<TransitionState>('idle')
   const [displayedTemplateId, setDisplayedTemplateId] = useState(templateId)
-  const lastTemplateId = useRef<string>(templateId)
-  const timer1 = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const timer2 = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const committedId = useRef(templateId)
+  const pendingId = useRef(templateId)
+  const leaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const enterTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
-    if (templateId === lastTemplateId.current) return
-    lastTemplateId.current = templateId
+    if (templateId === committedId.current) return
 
-    if (timer1.current) clearTimeout(timer1.current)
-    if (timer2.current) clearTimeout(timer2.current)
+    pendingId.current = templateId
+
+    if (leaveTimer.current !== null) {
+      clearTimeout(leaveTimer.current)
+      leaveTimer.current = null
+    }
+    if (enterTimer.current !== null) {
+      clearTimeout(enterTimer.current)
+      enterTimer.current = null
+    }
 
     setTransitionState('leaving')
 
-    timer1.current = setTimeout(() => {
-      setDisplayedTemplateId(templateId)
+    leaveTimer.current = setTimeout(() => {
+      leaveTimer.current = null
+      const next = pendingId.current
+      committedId.current = next
+      setDisplayedTemplateId(next)
       setTransitionState('entering')
 
-      timer2.current = setTimeout(() => {
+      enterTimer.current = setTimeout(() => {
+        enterTimer.current = null
         setTransitionState('idle')
-      }, 250)
-    }, 180)
+      }, ENTER_DURATION_MS)
+    }, LEAVE_DURATION_MS)
 
     return () => {
-      if (timer1.current) clearTimeout(timer1.current)
-      if (timer2.current) clearTimeout(timer2.current)
+      if (leaveTimer.current !== null) {
+        clearTimeout(leaveTimer.current)
+        leaveTimer.current = null
+      }
+      if (enterTimer.current !== null) {
+        clearTimeout(enterTimer.current)
+        enterTimer.current = null
+      }
     }
   }, [templateId])
 

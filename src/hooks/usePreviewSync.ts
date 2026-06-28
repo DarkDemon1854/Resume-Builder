@@ -1,12 +1,32 @@
+import { useMemo } from 'react'
 import { useResumeStore } from '@/store/resumeStore'
 
-export function usePreviewSync(resumeId: string) {
+type PreviewSyncResult = {
+  templateId: string | null
+  updatedAt: string | null
+  hasContent: boolean
+}
+
+export function usePreviewSync(resumeId: string): PreviewSyncResult {
   const resume = useResumeStore(
     state => state.resumes.find(r => r.id === resumeId) ?? null
   )
 
-  const templateId = resume?.templateId ?? null
-  const updatedAt = resume?.updatedAt ?? null
+  return useMemo(() => {
+    if (!resume) return { templateId: null, updatedAt: null, hasContent: false }
 
-  return { resume, templateId, updatedAt }
+    const { personalInfo, experience, education, skills, projects } = resume
+    const hasContent =
+      Boolean(personalInfo.fullName.trim()) ||
+      experience.length > 0 ||
+      education.length > 0 ||
+      skills.length > 0 ||
+      projects.length > 0
+
+    return {
+      templateId: resume.templateId,
+      updatedAt: resume.updatedAt,
+      hasContent,
+    }
+  }, [resume])
 }

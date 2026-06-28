@@ -1,11 +1,11 @@
-import { useRef, memo } from 'react'
+import { useRef } from 'react'
 import { usePreview } from '@/hooks/usePreview'
 import { usePreviewControls, type ViewportMode } from '@/hooks/usePreviewControls'
 import { useTemplateTransition } from '@/hooks/useTemplateTransition'
 import { getTemplate, TEMPLATE_REGISTRY } from '@/templates'
 import { useResumeStore, selectResumeById } from '@/store/resumeStore'
-import type { NormalizedResume } from '@/templates/types'
 import type { TemplateId } from '@/constants'
+import PreviewSectionRenderer from './PreviewSectionRenderer'
 import PreviewEmptyState from './PreviewEmptyState'
 import './preview.css'
 
@@ -32,6 +32,7 @@ export default function ResumePreview({ resumeId }: Props) {
     zoomIn,
     zoomOut,
     resetZoom,
+    fitToScreen,
     setViewportMode,
   } = usePreviewControls(containerRef)
 
@@ -53,7 +54,8 @@ export default function ResumePreview({ resumeId }: Props) {
   const safeDisplayId = (displayedTemplateId in TEMPLATE_REGISTRY
     ? displayedTemplateId
     : activeTemplateId) as TemplateId
-  const TemplateComponent = getTemplate(safeDisplayId).component
+
+  const { component: TemplateComponent } = getTemplate(safeDisplayId)
   const normalizedResume = preview.normalizedResume
 
   const canZoomIn = scale < MAX_SCALE
@@ -100,7 +102,7 @@ export default function ResumePreview({ resumeId }: Props) {
             onClick={zoomOut}
             disabled={!canZoomOut}
             className="preview-ctrl-btn"
-            aria-label="Zoom out (Ctrl -)"
+            aria-label="Zoom out"
             title="Zoom out (Ctrl −)"
           >
             <ZoomOutIcon />
@@ -109,7 +111,7 @@ export default function ResumePreview({ resumeId }: Props) {
             type="button"
             onClick={resetZoom}
             className="preview-zoom-pct"
-            aria-label="Reset zoom (Ctrl 0)"
+            aria-label="Reset zoom"
             title="Reset zoom (Ctrl 0)"
           >
             {scalePercent}%
@@ -119,12 +121,21 @@ export default function ResumePreview({ resumeId }: Props) {
             onClick={zoomIn}
             disabled={!canZoomIn}
             className="preview-ctrl-btn"
-            aria-label="Zoom in (Ctrl +)"
+            aria-label="Zoom in"
             title="Zoom in (Ctrl +)"
           >
             <ZoomInIcon />
           </button>
           <div className="preview-toolbar-divider" />
+          <button
+            type="button"
+            onClick={fitToScreen}
+            className="preview-ctrl-btn"
+            aria-label="Fit to screen"
+            title="Fit to screen"
+          >
+            <FitScreenIcon />
+          </button>
           <button
             type="button"
             onClick={toggleFullscreen}
@@ -138,14 +149,9 @@ export default function ResumePreview({ resumeId }: Props) {
       </div>
 
       <div ref={containerRef} className="preview-canvas">
+        {isSwitching && <div className="preview-canvas-progress" aria-hidden="true" />}
         <div className="preview-canvas-inner">
           <ViewportFrame mode={viewport} scaledWidth={scaledWidth} scaledHeight={scaledHeight}>
-            {/*
-              Scale wrapper: occupies the VISUAL (post-scale) size in layout space.
-              The A4 child is positioned absolutely at full size, scaled from top-left.
-              This is the correct pattern — transform: scale() does NOT affect layout,
-              so without this wrapper the 794px A4 would overflow and get clipped.
-            */}
             <div
               className="preview-scale-wrapper"
               style={{ width: scaledWidth, height: scaledHeight }}
@@ -164,7 +170,7 @@ export default function ResumePreview({ resumeId }: Props) {
                 {preview.isEmpty ? (
                   <PreviewEmptyState />
                 ) : (
-                  <TemplateRender
+                  <PreviewSectionRenderer
                     key={displayedTemplateId}
                     TemplateComponent={TemplateComponent}
                     normalizedResume={normalizedResume}
@@ -178,22 +184,6 @@ export default function ResumePreview({ resumeId }: Props) {
     </div>
   )
 }
-
-type TemplateRenderProps = {
-  TemplateComponent: React.ComponentType<{ resume: NormalizedResume }>
-  normalizedResume: NormalizedResume
-}
-
-const TemplateRender = memo(function TemplateRender({
-  TemplateComponent,
-  normalizedResume,
-}: TemplateRenderProps) {
-  return (
-    <div className="template-enter">
-      <TemplateComponent resume={normalizedResume} />
-    </div>
-  )
-})
 
 type ViewportFrameProps = {
   mode: ViewportMode
@@ -237,6 +227,17 @@ function ViewportFrame({ mode, scaledWidth, scaledHeight, children }: ViewportFr
       </div>
       <div className="preview-device-home-bar" />
     </div>
+  )
+}
+
+function FitScreenIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M15 3h6v6" />
+      <path d="M9 21H3v-6" />
+      <path d="M21 3l-7 7" />
+      <path d="M3 21l7-7" />
+    </svg>
   )
 }
 
